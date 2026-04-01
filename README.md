@@ -2,7 +2,7 @@
 
 HTML for English morning/evening classes and flashcard
 
-## **Template 1 for lectures from now on:**
+<h2><a href="./[class.html](https://github.com/anuushka/interactive-HTML-classes/blob/main/octolearn-template.html)">What you fill in each class</a></h2>
 
 | **Placeholder**              | **What to replace**                              |
 |----------------------------|--------------------------------------------------|
