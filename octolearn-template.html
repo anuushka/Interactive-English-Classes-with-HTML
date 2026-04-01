@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>OctoLearn · [DAY] · [TOPIC]</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root {
+    --amber:#E8A020; --amber-dim:#b87d18; --amber-bg:rgba(232,160,32,0.09);
+    --navy:#0f1d2e; --card:#162032; --border:#253548;
+    --text:#eee8df; --dim:#8a9aaa;
+    --green:#3dba78; --red:#e85c3a; --teal:#2e9caa; --purple:#9b72cf;
+  }
+  body { background:var(--navy); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; }
+
+  /* HEADER */
+  .hdr { background:var(--card); border-bottom:1px solid var(--border); padding:11px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; position:sticky; top:0; z-index:60; }
+  .logo { display:flex; align-items:center; gap:8px; }
+  .logo-icon { width:30px; height:30px; background:var(--amber); border-radius:7px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:15px; color:var(--navy); flex-shrink:0; }
+  .logo-name { font-size:13px; font-weight:600; }
+  .logo-sub  { font-size:10px; color:var(--dim); margin-top:1px; }
+
+  /* TIMER */
+  .timer { display:flex; align-items:center; gap:5px; background:var(--navy); border:1px solid var(--border); border-radius:10px; padding:5px 9px; }
+  .tnum { font-size:20px; font-weight:700; color:var(--amber); font-variant-numeric:tabular-nums; letter-spacing:0.02em; min-width:52px; text-align:center; }
+  .tnum.warn { color:var(--red); animation:blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .tbtn { width:26px; height:26px; border-radius:6px; border:none; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; font-family:inherit; }
+  .tbtn:active { transform:scale(.9); }
+  .go   { background:var(--green); color:#fff; }
+  .stop { background:var(--amber); color:var(--navy); }
+  .rst  { background:var(--border); color:var(--dim); }
+  .preset { background:var(--border); color:var(--dim); font-size:10px; padding:0 7px; width:auto; border-radius:5px; letter-spacing:.03em; }
+  .preset.sel { background:var(--amber); color:var(--navy); font-weight:600; }
+
+  /* PROGRESS */
+  .prog { height:3px; background:var(--border); }
+  .prog-bar { height:100%; background:var(--amber); transition:width .3s; }
+
+  /* TABS */
+  .tabs { display:flex; align-items:center; overflow-x:auto; background:var(--card); border-bottom:1px solid var(--border); scrollbar-width:none; -webkit-overflow-scrolling:touch; position:sticky; top:53px; z-index:59; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .sect-label { flex-shrink:0; font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:0 8px; white-space:nowrap; }
+  .sect-label.inp { color:var(--purple); }
+  .sect-label.out { color:var(--amber); }
+  .sect-div { width:1px; height:28px; background:var(--border); flex-shrink:0; margin:0 3px; }
+  .tab { flex-shrink:0; padding:10px 12px; font-size:12px; font-weight:500; color:var(--dim); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:color .15s,border-color .15s; font-family:inherit; }
+  .tab.active         { color:var(--amber);  border-bottom-color:var(--amber); }
+  .tab.inp-tab.active { color:var(--purple); border-bottom-color:var(--purple); }
+  .tab.ov-tab.active  { color:var(--text);   border-bottom-color:var(--text); }
+  .tn { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:var(--border); font-size:10px; color:var(--dim); margin-right:5px; }
+  .tab.active .tn         { background:var(--amber);  color:var(--navy); }
+  .tab.inp-tab.active .tn { background:var(--purple); color:#fff; }
+  .tab.ov-tab.active  .tn { background:var(--text);   color:var(--navy); }
+
+  /* PHASES */
+  .phase { display:none; padding:20px 16px 96px; max-width:660px; margin:0 auto; }
+  .phase.on { display:block; animation:up .22s ease; }
+  @keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+  /* PHASE HEAD */
+  .ptag  { font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; margin-bottom:5px; }
+  .ptag.ov  { color:var(--dim); }
+  .ptag.inp { color:var(--purple); }
+  .ptag.out { color:var(--amber); }
+  .ptitle { font-size:26px; font-weight:700; line-height:1.2; margin-bottom:4px; }
+  .pdur   { font-size:12px; color:var(--dim); margin-bottom:22px; }
+
+  /* CARDS */
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:14px; }
+  .card.hl { border-color:var(--amber); background:linear-gradient(135deg,#162032,#17221a); }
+  .card.gc { border-color:var(--green);  background:rgba(61,186,120,.07); }
+  .card.rc { border-color:var(--red);    background:rgba(232,92,58,.07); }
+  .card.tc { border-color:var(--teal);   background:rgba(46,156,170,.07); }
+  .card.pc { border-color:var(--purple); background:rgba(155,114,207,.07); }
+  .clabel { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
+  .ca{color:var(--amber);} .cg{color:var(--green);} .cr{color:var(--red);}
+  .ct{color:var(--teal);}  .cd{color:var(--dim);}   .cp{color:var(--purple);}
+  .card p { font-size:15px; line-height:1.75; font-weight:300; }
+  .card p strong { color:var(--amber); font-weight:600; }
+  .card p em { font-style:italic; }
+  .card.pc p strong { color:var(--purple); }
+
+  /* OUTLINE */
+  .outline-block { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:14px; }
+  .outline-header { padding:12px 16px; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; display:flex; align-items:center; justify-content:space-between; }
+  .outline-header.inp-h { background:rgba(155,114,207,.12); color:var(--purple); border-bottom:1px solid rgba(155,114,207,.2); }
+  .outline-header.out-h { background:rgba(232,160,32,.10);  color:var(--amber);  border-bottom:1px solid rgba(232,160,32,.2); }
+  .outline-header .total-time { font-size:13px; font-weight:700; letter-spacing:0; }
+  .outline-row { display:flex; align-items:center; padding:13px 16px; border-bottom:1px solid var(--border); gap:12px; cursor:pointer; transition:background .15s; }
+  .outline-row:last-child { border-bottom:none; }
+  .outline-row:active { background:rgba(255,255,255,.03); }
+  .outline-dot { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+  .dot-inp { background:rgba(155,114,207,.2); color:var(--purple); }
+  .dot-out { background:rgba(232,160,32,.15);  color:var(--amber); }
+  .outline-info { flex:1; }
+  .outline-title { font-size:14px; font-weight:500; line-height:1.3; }
+  .outline-desc  { font-size:12px; color:var(--dim); margin-top:2px; font-weight:300; }
+  .outline-time  { font-size:12px; font-weight:600; color:var(--dim); text-align:right; flex-shrink:0; white-space:nowrap; }
+  .outline-time .mins { font-size:18px; font-weight:700; display:block; text-align:right; }
+  .mins.inp-m { color:var(--purple); } .mins.out-m { color:var(--amber); }
+  .arrow { font-size:12px; color:var(--border); flex-shrink:0; }
+  .outline-total { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:var(--navy); border:1px solid var(--border); border-radius:14px; margin-bottom:14px; }
+  .total-label { font-size:12px; color:var(--dim); font-weight:500; }
+  .total-val   { font-size:22px; font-weight:700; color:var(--text); }
+
+  /* STRUCTURES */
+  .structs { background:var(--navy); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin:12px 0; font-size:14px; line-height:2; font-weight:300; }
+  .structs .s { display:block; }
+  .structs .s::before { content:"✦ "; color:var(--purple); }
+  .s-fill { color:var(--purple); font-style:italic; }
+
+  /* QUOTE */
+  .quote { border-left:3px solid var(--amber); padding:12px 16px; margin:14px 0; background:var(--amber-bg); border-radius:0 8px 8px 0; }
+  .quote p { font-size:14px; line-height:1.7; font-style:italic; font-weight:300; }
+  .qattr { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--amber-dim); margin-top:6px; }
+
+  /* TABLE */
+  table { width:100%; border-collapse:collapse; font-size:14px; margin:10px 0; }
+  th { text-align:left; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); padding:8px 12px; border-bottom:1px solid var(--border); font-weight:600; }
+  td { padding:10px 12px; border-bottom:1px solid var(--border); font-weight:300; }
+  tr:last-child td { border-bottom:none; }
+  .big { color:var(--amber); font-weight:700; font-size:16px; }
+
+  /* SIDES */
+  .sides { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; }
+  @media(max-width:460px){ .sides{ grid-template-columns:1fr; } }
+
+  /* STEPS */
+  .steps { margin:10px 0; }
+  .step  { display:flex; gap:12px; margin-bottom:13px; align-items:flex-start; }
+  .sn { width:26px; height:26px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:var(--amber); flex-shrink:0; }
+  .step.pi .sn { color:var(--purple); }
+  .step p { font-size:14px; line-height:1.65; font-weight:300; padding-top:3px; }
+  .step p strong { color:var(--amber); font-weight:600; }
+  .step p em { font-style:italic; }
+
+  /* VOCAB */
+  .vocab-row { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .vocab-pill { background:var(--navy); border:1px solid var(--border); border-radius:20px; padding:6px 12px; font-size:13px; font-weight:300; }
+  .vocab-pill span { color:var(--amber); font-style:italic; font-size:11px; margin-left:4px; }
+
+  /* CLOSING */
+  .closing-big { border:2px solid var(--amber); background:var(--amber-bg); border-radius:14px; padding:22px; text-align:center; font-size:20px; line-height:1.7; font-style:italic; margin:14px 0; }
+  .closing-big span { color:var(--amber); font-style:normal; font-weight:700; }
+  .example-say { background:rgba(61,186,120,.08); border:1px solid rgba(61,186,120,.3); border-radius:10px; padding:14px 16px; margin:10px 0; font-size:14px; font-style:italic; line-height:1.65; font-weight:300; }
+
+  /* HOW TO */
+  .algo-block { margin-top:14px; }
+  .algo-step { display:flex; gap:12px; align-items:flex-start; }
+  .algo-num { width:30px; height:30px; border-radius:50%; background:var(--amber); color:var(--navy); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+  .algo-body { flex:1; padding-bottom:4px; }
+  .algo-title { font-size:14px; font-weight:600; margin-bottom:4px; }
+  .algo-desc { font-size:13px; line-height:1.65; color:var(--dim); font-weight:300; }
+  .algo-arrow { font-size:18px; color:var(--border); text-align:center; padding:6px 0 6px 14px; }
+  .aq { color:var(--amber); font-style:italic; }
+  .chain-flow { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:14px 0; }
+  .chain-node { background:var(--navy); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:13px; font-weight:500; white-space:nowrap; }
+  .chain-node.teacher-node { background:var(--amber); color:var(--navy); border-color:var(--amber); font-weight:700; }
+  .chain-line { font-size:12px; color:var(--dim); white-space:nowrap; }
+  .chain-rules { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+  .chain-rule { display:flex; gap:10px; align-items:flex-start; }
+  .cr-icon { color:var(--amber); font-weight:700; font-size:14px; flex-shrink:0; margin-top:1px; }
+  .cr-text { font-size:13px; line-height:1.65; color:var(--dim); font-weight:300; }
+  .rules-list { display:flex; flex-direction:column; gap:12px; margin-top:4px; }
+  .rule-row { display:flex; gap:12px; align-items:flex-start; }
+  .rule-icon { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; margin-top:1px; }
+  .rule-icon.yes { background:rgba(61,186,120,.2); color:var(--green); }
+  .rule-icon.no  { background:rgba(232,92,58,.2);  color:var(--red); }
+  .rule-text { font-size:13px; line-height:1.65; font-weight:300; }
+  .rule-text strong { color:var(--text); font-weight:600; }
+  .tree { margin-top:10px; }
+  .tree-node.root { background:var(--red); color:#fff; border-radius:10px; padding:10px 14px; text-align:center; font-size:14px; font-weight:600; margin-bottom:12px; }
+  .tree-branches { display:flex; flex-direction:column; gap:8px; }
+  .tree-branch { background:var(--navy); border:1px solid rgba(232,92,58,.3); border-radius:10px; padding:12px 14px; }
+  .tree-condition { font-size:12px; font-weight:600; color:var(--red); letter-spacing:.04em; margin-bottom:5px; text-transform:uppercase; }
+  .tree-action { font-size:13px; line-height:1.6; color:var(--dim); font-weight:300; }
+
+  /* EMERGENCY */
+  .elist { list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .elist li { font-size:14px; line-height:1.65; font-style:italic; font-weight:300; color:var(--dim); border-left:2px solid rgba(232,92,58,.5); padding-left:12px; }
+
+  /* BOTTOM NAV */
+  .bnav { position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--border); padding:10px 16px; display:flex; justify-content:space-between; align-items:center; z-index:60; }
+  .nbtn { padding:10px 20px; border-radius:10px; border:1px solid var(--border); background:var(--navy); color:var(--dim); font-size:14px; font-weight:500; cursor:pointer; font-family:inherit; }
+  .nbtn:active { transform:scale(.96); }
+  .nbtn:disabled { opacity:.3; cursor:default; }
+  .nbtn.nx { background:var(--amber); color:var(--navy); border-color:var(--amber); }
+  .pctr { font-size:11px; color:var(--dim); text-align:center; line-height:1.6; }
+  .pctr strong { color:var(--amber); font-size:15px; display:block; }
+
+  hr { border:none; border-top:1px solid var(--border); margin:14px 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-icon">O</div>
+    <div>
+      <div class="logo-name">OctoLearn · [DAY]</div>
+      <div class="logo-sub">[BOOK] · [CHAPTER] · [LEVEL]</div>
+    </div>
+  </div>
+  <div class="timer">
+    <button class="tbtn go"   onclick="tGo()"    title="Start">▶</button>
+    <button class="tbtn stop" onclick="tPause()" title="Pause">⏸</button>
+    <div class="tnum" id="td">95:00</div>
+    <button class="tbtn rst"  onclick="tReset()" title="Reset">↺</button>
+    <button class="tbtn preset sel" id="p95" onclick="setTimer(95)">95</button>
+    <button class="tbtn preset"    id="p45" onclick="setTimer(45)">45</button>
+    <button class="tbtn preset"    id="p40" onclick="setTimer(40)">40</button>
+    <button class="tbtn preset"    id="p2"  onclick="setTimer(2)">2</button>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog"><div class="prog-bar" id="pb" style="width:0%"></div></div>
+
+<!-- TABS
+     Reading tab label: use "Reading" for even days, "Listening" for odd days -->
+<div class="tabs">
+  <button class="tab ov-tab active" onclick="go(0)"  id="t0"><span class="tn">≡</span>Outline</button>
+  <div class="sect-div"></div>
+  <div class="sect-label inp">⬡ INPUT</div>
+  <button class="tab inp-tab"       onclick="go(1)"  id="t1"><span class="tn">G</span>Grammar</button>
+  <button class="tab inp-tab"       onclick="go(2)"  id="t2"><span class="tn">R</span>Reading</button><!-- or Listening -->
+  <div class="sect-div"></div>
+  <div class="sect-label out">◈ OUTPUT</div>
+  <button class="tab"               onclick="go(3)"  id="t3"><span class="tn">0</span>Hook</button>
+  <button class="tab"               onclick="go(4)"  id="t4"><span class="tn">1</span>Data</button>
+  <button class="tab"               onclick="go(5)"  id="t5"><span class="tn">2</span>Prompt</button>
+  <button class="tab"               onclick="go(6)"  id="t6"><span class="tn">3</span>Chat</button>
+  <button class="tab ov-tab"        onclick="go(10)" id="t10"><span class="tn">?</span>How To</button>
+  <button class="tab"               onclick="go(7)"  id="t7"><span class="tn">4</span>Debate</button>
+  <button class="tab"               onclick="go(8)"  id="t8"><span class="tn">5</span>Close</button>
+  <div class="sect-div"></div>
+  <button class="tab"               onclick="go(9)"  id="t9"><span class="tn">!</span>SOS</button>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 0 — OUTLINE
+     Fill in: total time, descriptions, durations
+════════════════════════════════════════════════ -->
+<div class="phase on" id="ph0">
+  <div class="ptag ov">[DAY] · [TOTAL] Min Class</div>
+  <div class="ptitle">Class Outline</div>
+  <div class="pdur">Tap any row to jump to that section</div>
+
+  <div class="outline-total">
+    <div>
+      <div class="total-label">Total class time</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:2px;">[BOOK] · [CHAPTER]</div>
+    </div>
+    <div class="total-val">[TOTAL] min</div>
+  </div>
+
+  <div class="outline-block">
+    <div class="outline-header inp-h">
+      <span>⬡ Input Phase</span>
+      <span class="total-time">45 min</span>
+    </div>
+    <div class="outline-row" onclick="go(1)">
+      <div class="outline-dot dot-inp">G</div>
+      <div class="outline-info">
+        <div class="outline-title">Grammar Noticing</div>
+        <div class="outline-desc">[GRAMMAR FOCUS]</div>
+      </div>
+      <div class="outline-time"><span class="mins inp-m">5</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(2)">
+      <div class="outline-dot dot-inp">R</div><!-- R or L -->
+      <div class="outline-info">
+        <div class="outline-title">[Reading / Listening]: [TITLE]</div>
+        <div class="outline-desc">[PAGES / TRACK] · [BRIEF DESCRIPTION]</div>
+      </div>
+      <div class="outline-time"><span class="mins inp-m">40</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+
+  <div class="outline-block">
+    <div class="outline-header out-h">
+      <span>◈ Output Phase — Speaking Only</span>
+      <span class="total-time">45 min</span>
+    </div>
+    <div class="outline-row" onclick="go(3)">
+      <div class="outline-dot dot-out">0</div>
+      <div class="outline-info">
+        <div class="outline-title">Opening Hook</div>
+        <div class="outline-desc">[HOOK DESCRIPTION — one sentence]</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">1</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(4)">
+      <div class="outline-dot dot-out">1</div>
+      <div class="outline-info">
+        <div class="outline-title">Data / Context</div>
+        <div class="outline-desc">[KEY FACT OR QUOTE TO DISPLAY]</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">1</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(5)">
+      <div class="outline-dot dot-out">2</div>
+      <div class="outline-info">
+        <div class="outline-title">The Prompt</div>
+        <div class="outline-desc">[ONE-LINE SUMMARY OF DEBATE OR SPEAKING PROMPT]</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">1</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(6)">
+      <div class="outline-dot dot-out">3</div>
+      <div class="outline-info">
+        <div class="outline-title">Chat Pulse</div>
+        <div class="outline-desc">Everyone types — activates whole room before calling names</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">1</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(7)">
+      <div class="outline-dot dot-out">4</div>
+      <div class="outline-info">
+        <div class="outline-title">[Debate / Speaking Prompts]</div>
+        <div class="outline-desc">[SIDE A POSITION] vs [SIDE B POSITION]</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">36</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(8)">
+      <div class="outline-dot dot-out">5</div>
+      <div class="outline-info">
+        <div class="outline-title">Closing Round</div>
+        <div class="outline-desc">Every student speaks — one sentence, fixed order, 20 sec each</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">5</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Vocabulary goal</div>
+    <p>Target <strong>22 words</strong> today — 5 pre-taught before reading, ~17 encountered in context, harvested at end of input phase.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 1 — GRAMMAR
+     Fill in: grammar focus, model sentences, structures
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph1">
+  <div class="ptag inp">INPUT · 0:00–0:05</div>
+  <div class="ptitle">Grammar Noticing</div>
+  <div class="pdur">⏱ 5 min — [GRAMMAR FOCUS TITLE]</div>
+
+  <div class="card pc">
+    <div class="clabel cp">Teacher models first — no rules, no table</div>
+    <p>"[MODEL SENTENCE USING TODAY'S GRAMMAR — personal and genuine]"</p>
+  </div>
+
+  <div class="structs">
+    <span class="s">[STRUCTURE 1] <span class="s-fill">___</span></span>
+    <span class="s">[STRUCTURE 2] <span class="s-fill">___</span></span>
+    <span class="s">[STRUCTURE 3] <span class="s-fill">___</span></span>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">💬 Chat activation — everyone types at once</div>
+    <p><em>"[CHAT PROMPT USING TODAY'S GRAMMAR] — GO!"</em></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">How to run it</div>
+    <div class="steps">
+      <div class="step pi"><div class="sn">1</div><p>Teacher says model sentences — personal and genuine.</p></div>
+      <div class="step pi"><div class="sn">2</div><p>Show structures on screen. Launch chat pulse. Everyone types simultaneously.</p></div>
+      <div class="step pi"><div class="sn">3</div><p>Read 3–4 answers aloud. Model the structure back naturally without correcting.</p></div>
+      <div class="step pi"><div class="sn">4</div><p><strong>Do not correct. Do not drill.</strong> These structures will reappear in the output phase.</p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 2 — READING (even days) / LISTENING (odd days)
+     Fill in: title, pages/track, content map, vocab
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph2">
+  <div class="ptag inp">INPUT · 0:05–0:45</div>
+  <div class="ptitle">[Reading / Listening]: [TITLE]</div>
+  <div class="pdur">⏱ 40 min — [PAGES / TRACK DESCRIPTION]</div>
+
+  <div class="card pc">
+    <div class="clabel cp">Schema activation — say this before starting (2 min)</div>
+    <p>"[1–2 sentences to frame what students are about to read/hear. What question should they follow? What argument?]"</p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Pre-teach 5 key words</div>
+    <div class="vocab-row">
+      <div class="vocab-pill">[word1] <span>[монгол]</span></div>
+      <div class="vocab-pill">[word2] <span>[монгол]</span></div>
+      <div class="vocab-pill">[word3] <span>[монгол]</span></div>
+      <div class="vocab-pill">[word4] <span>[монгол]</span></div>
+      <div class="vocab-pill">[word5] <span>[монгол]</span></div>
+    </div>
+    <p style="margin-top:10px;font-size:13px;color:var(--dim);">Remaining 17 words: students encounter in context. Harvest at end.</p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Structure — 35 min</div>
+    <div class="steps">
+      <div class="step pi"><div class="sn">1</div><p><strong>0:07–0:22</strong> — [FIRST SECTION: pages/track segment. What happens here?]</p></div>
+      <div class="step pi"><div class="sn">2</div><p><strong>0:22 pause</strong> — Chat pulse: <em>"[REACTION QUESTION]"</em></p></div>
+      <div class="step pi"><div class="sn">3</div><p><strong>0:22–0:35</strong> — [SECOND SECTION]</p></div>
+      <div class="step pi"><div class="sn">4</div><p><strong>0:35 pause</strong> — Call one student: <em>"[NAME QUESTION]"</em></p></div>
+      <div class="step pi"><div class="sn">5</div><p><strong>0:35–0:42</strong> — [THIRD SECTION. Where to stop.]</p></div>
+    </div>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Vocabulary harvest — 0:42–0:45 (3 min)</div>
+    <p><em>"Drop any words you noticed into the chat — ones you guessed, ones that stuck. GO."</em></p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 3 — HOOK
+     Fill in: the hook question/thought
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph3">
+  <div class="ptag out">OUTPUT · 0:45–0:46</div>
+  <div class="ptitle">Opening Hook</div>
+  <div class="pdur">⏱ 1 min — Say this before showing any prompt</div>
+
+  <div class="card hl">
+    <div class="clabel ca">Say this first</div>
+    <p>"[HOOK — a personal or provocative question to make the topic real before the debate. Should create 10 seconds of genuine thinking.]"</p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Then do this</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Go <strong>completely silent for 10 seconds.</strong> Don't fill the space.</p></div>
+      <div class="step"><div class="sn">2</div><p>Call one student: <em>"[Name] — what came to mind?"</em></p></div>
+      <div class="step"><div class="sn">3</div><p>Take their answer briefly. Move to data.</p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 4 — DATA
+     Fill in: key quote, key numbers or facts
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph4">
+  <div class="ptag out">OUTPUT · 0:46–0:47</div>
+  <div class="ptitle">Data / Context</div>
+  <div class="pdur">⏱ 1 min — Show before the prompt</div>
+
+  <div class="quote">
+    <p>"[KEY QUOTE FROM THE TEXT]"</p>
+    <div class="qattr">— [AUTHOR], [SOURCE]</div>
+  </div>
+
+  <div class="card">
+    <div class="clabel ca">[DATA LABEL — e.g. "Key numbers" or "What the research found"]</div>
+    <table>
+      <tr><th>[COL 1]</th><th>[COL 2]</th></tr>
+      <tr><td>[row 1 label]</td><td><span class="big">[value]</span></td></tr>
+      <tr><td>[row 2 label]</td><td><span class="big">[value]</span></td></tr>
+      <tr><td>[row 3 label]</td><td><span class="big">[value]</span></td></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 5 — PROMPT
+     Fill in: the debate or speaking prompt
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph5">
+  <div class="ptag out">OUTPUT · 0:47–0:48</div>
+  <div class="ptitle">The Prompt</div>
+  <div class="pdur">⏱ 1 min — Read aloud, then display for students</div>
+
+  <div class="card hl">
+    <div class="clabel ca">Display to students</div>
+    <p>[MAIN DEBATE OR SPEAKING PROMPT — 3–5 sentences. Clear, debatable, connected to what they just read/heard. Include a personal angle.]</p>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Follow-up question</div>
+    <p><em>"[SECOND QUESTION — sharper or more personal than the first]"</em></p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 6 — CHAT PULSE
+     Fill in: the YES/NO or A/B/C question
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph6">
+  <div class="ptag out">OUTPUT · 0:48–0:49</div>
+  <div class="ptitle">Chat Pulse</div>
+  <div class="pdur">⏱ 1 min — Activate everyone before calling names</div>
+
+  <div class="card gc">
+    <div class="clabel cg">💬 Everyone types at once</div>
+    <p><em>"Type <strong>[YES/NO]</strong> or <strong>[A/B/C]</strong> — [QUESTION] — Go!"</em></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">After reading results</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Read the split aloud: <em>"I see [result]... let's test that."</em></p></div>
+      <div class="step"><div class="sn">2</div><p>Call one [YES/A]: <em>"[Name] — why?"</em></p></div>
+      <div class="step"><div class="sn">3</div><p>Call one [NO/B]: <em>"[Name] — you said [answer]. Why?"</em></p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 10 — HOW TO (fixed — do not change)
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph10">
+  <div class="ptag ov">Teacher Reference</div>
+  <div class="ptitle">How To Run This Class</div>
+  <div class="pdur">Read before class — keep open during output</div>
+
+  <div class="card hl">
+    <div class="clabel ca">Debate Algorithm — Step by Step</div>
+    <div class="algo-block">
+      <div class="algo-step">
+        <div class="algo-num">1</div>
+        <div class="algo-body">
+          <div class="algo-title">Assign sides — don't ask</div>
+          <div class="algo-desc">Split roster down the middle. Students defend their assigned position whether they agree or not.</div>
+        </div>
+      </div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step">
+        <div class="algo-num">2</div>
+        <div class="algo-body">
+          <div class="algo-title">Side A makes their case — 2 min</div>
+          <div class="algo-desc">Call a specific name. Don't wait for volunteers. If they pause: <span class="aq">"What's your main argument?"</span></div>
+        </div>
+      </div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step">
+        <div class="algo-num">3</div>
+        <div class="algo-body">
+          <div class="algo-title">Side B responds directly — 2 min</div>
+          <div class="algo-desc">Must react to what Side A actually said — not give a new argument. <span class="aq">"[Name] — do you agree with that?"</span></div>
+        </div>
+      </div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step">
+        <div class="algo-num">4</div>
+        <div class="algo-body">
+          <div class="algo-title">Open floor — use the Chain Method</div>
+          <div class="algo-desc">Stop being the hub. Students talk to each other. See Chain Method below.</div>
+        </div>
+      </div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step">
+        <div class="algo-num">5</div>
+        <div class="algo-body">
+          <div class="algo-title">Energy drops — drop a trap question</div>
+          <div class="algo-desc">See SOS tab. One sharp question always restarts the room.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">The Chain Method</div>
+    <p style="margin-bottom:14px;">Students talk to each other — not to you. Pass the conversation like a chain.</p>
+    <div class="chain-flow">
+      <div class="chain-node teacher-node">Teacher</div>
+      <div class="chain-line">calls →</div>
+      <div class="chain-node">Student A</div>
+      <div class="chain-line">passes to →</div>
+      <div class="chain-node">Student B</div>
+      <div class="chain-line">passes to →</div>
+      <div class="chain-node">Student C</div>
+      <div class="chain-line">→ next unheard</div>
+    </div>
+    <div class="chain-rules">
+      <div class="chain-rule"><div class="cr-icon">→</div><div class="cr-text">After each speaker: <span class="aq">"[Name] — do you agree with what [Name] just said?"</span></div></div>
+      <div class="chain-rule"><div class="cr-icon">→</div><div class="cr-text">After a few turns: <span class="aq">"[Name] — who do you want to respond?"</span> — students start picking each other</div></div>
+    </div>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Chain Method — One Rule</div>
+    <p>Never return to the same student twice until <strong>every student has spoken once.</strong></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Teacher Rules During Output</div>
+    <div class="rules-list">
+      <div class="rule-row"><div class="rule-icon no">✗</div><div class="rule-text"><strong>Never correct mid-speech.</strong> Let errors go during output.</div></div>
+      <div class="rule-row"><div class="rule-icon yes">✓</div><div class="rule-text"><strong>Mirror instead of fix.</strong> Repeat their idea back with the correct form naturally.</div></div>
+      <div class="rule-row"><div class="rule-icon no">✗</div><div class="rule-text"><strong>Never ask the open room.</strong> "Does anyone want to share?" = silence. Always call a name.</div></div>
+      <div class="rule-row"><div class="rule-icon yes">✓</div><div class="rule-text"><strong>React to content, not language.</strong> Students feel heard → filter drops → more output.</div></div>
+      <div class="rule-row"><div class="rule-icon no">✗</div><div class="rule-text"><strong>Never let one student dominate.</strong> After 60 sec: <span class="aq">"Strong — [new name], what do you think?"</span></div></div>
+      <div class="rule-row"><div class="rule-icon yes">✓</div><div class="rule-text"><strong>Plant grammar in your own speech.</strong> Students acquire by hearing, not by being told.</div></div>
+    </div>
+  </div>
+
+  <div class="card rc">
+    <div class="clabel cr">Silence — Decision Tree</div>
+    <div class="tree">
+      <div class="tree-node root">Room goes quiet</div>
+      <div class="tree-branches">
+        <div class="tree-branch"><div class="tree-condition">Nobody has spoken yet</div><div class="tree-action">Call the most confident student. Ask a yes/no question first.</div></div>
+        <div class="tree-branch"><div class="tree-condition">Same 2–3 people talking</div><div class="tree-action">Stop the chain. Call a quiet student: <span class="aq">"[Name] — we haven't heard from you."</span></div></div>
+        <div class="tree-branch"><div class="tree-condition">General energy drop</div><div class="tree-action">Chat pulse — YES/NO into the chat. Then call someone who typed.</div></div>
+        <div class="tree-branch"><div class="tree-condition">Topic exhausted</div><div class="tree-action">Drop a trap question from the SOS tab.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 7 — DEBATE / SPEAKING PROMPTS
+     Fill in: Side A, Side B, follow-up questions
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph7">
+  <div class="ptag out">OUTPUT · 0:49–1:25</div>
+  <div class="ptitle">[Debate / Speaking Prompts]</div>
+  <div class="pdur">⏱ 36 min</div>
+
+  <div class="sides">
+    <div class="card tc">
+      <div class="clabel ct">Side A</div>
+      <p><em>"[SIDE A POSITION]"</em></p>
+    </div>
+    <div class="card rc">
+      <div class="clabel cr">Side B</div>
+      <p><em>"[SIDE B POSITION]"</em></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">How to run it</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p><strong>Assign</strong> sides — don't ask. Split roster.</p></div>
+      <div class="step"><div class="sn">2</div><p>Side A: <strong>2 min.</strong> Call specific names.</p></div>
+      <div class="step"><div class="sn">3</div><p>Side B: <strong>2 min.</strong> Direct response to Side A.</p></div>
+      <div class="step"><div class="sn">4</div><p>Open floor: Chain Method. Every student speaks before time ends.</p></div>
+    </div>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Trap question — drop if debate gets too comfortable</div>
+    <p><em>"[A QUESTION THAT COMPLICATES THE OBVIOUS ANSWER]"</em></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Follow-up prompts</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p><em>"[FOLLOW-UP QUESTION 1]"</em></p></div>
+      <div class="step"><div class="sn">2</div><p><em>"[FOLLOW-UP QUESTION 2]"</em></p></div>
+      <div class="step"><div class="sn">3</div><p><em>"[PERSONAL QUESTION — bring it back to their own lives]"</em></p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 8 — CLOSING ROUND
+     Fill in: the closing sentence
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph8">
+  <div class="ptag out">OUTPUT · 1:25–1:30</div>
+  <div class="ptitle">Closing Round</div>
+  <div class="pdur">⏱ 5 min — Every student speaks once</div>
+
+  <div class="card hl">
+    <div class="clabel ca">The sentence — display for students</div>
+    <div class="closing-big">
+      "[CLOSING SENTENCE STEM — connects today's topic to their personal life] <span>___</span>"
+    </div>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Example answers — show what you mean</div>
+    <div class="example-say">"[EXAMPLE ANSWER 1 — personal, honest, uses today's grammar naturally]"</div>
+    <div class="example-say">"[EXAMPLE ANSWER 2]"</div>
+    <div class="example-say">"[EXAMPLE ANSWER 3]"</div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">How to run it</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Fixed order — alphabetical or screen order. Everyone knows their turn is coming.</p></div>
+      <div class="step"><div class="sn">2</div><p><strong>20 seconds each max.</strong> Closure, not more debate.</p></div>
+      <div class="step"><div class="sn">3</div><p>Teacher responds with one word: <em>"Strong." / "Honest." / "Exactly." / "Real."</em></p></div>
+      <div class="step"><div class="sn">4</div><p><strong>No correction. No follow-up.</strong> Clean ending.</p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PHASE 9 — SOS
+     Fill in: emergency prompts specific to today's content
+════════════════════════════════════════════════ -->
+<div class="phase" id="ph9">
+  <div class="ptag out">Emergency — Use Any Time</div>
+  <div class="ptitle">SOS Prompts</div>
+  <div class="pdur">Drop one the moment energy drops — don't wait</div>
+
+  <div class="card rc">
+    <div class="clabel cr">🚨 Content-specific — use immediately</div>
+    <ul class="elist" style="margin-top:4px">
+      <li>"[SOS PROMPT 1 — specific to today's reading/topic]"</li>
+      <li>"[SOS PROMPT 2]"</li>
+      <li>"[SOS PROMPT 3 — personal/provocative]"</li>
+      <li>"[SOS PROMPT 4]"</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Universal resets — always work</div>
+    <ul class="elist" style="margin-top:4px">
+      <li>"[Name] just said ___. [Name] — do you agree or not?"</li>
+      <li>"Type in chat: one word for how this makes you feel. GO."</li>
+      <li>"[Name] — be honest. Where do YOU stand on this personally?"</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="nbtn" id="prevBtn" onclick="go(cur-1)" disabled>← Prev</button>
+  <div class="pctr">
+    <strong id="phN">≡</strong>
+    <span id="phSub">Class Outline</span>
+  </div>
+  <button class="nbtn nx" id="nextBtn" onclick="go(cur+1)">Next →</button>
+</div>
+
+<script>
+var cur=0, total=11;
+var currentMins=95, secs=95*60, running=false, iv=null;
+
+var labels=[
+  ['≡','Class Outline'],
+  ['G','Grammar · Input'],['R','Reading · Input'],
+  ['0','Hook · Output'],['1','Data · Output'],['2','Prompt · Output'],
+  ['3','Chat · Output'],['4','Debate · Output'],['5','Close · Output'],
+  ['!','SOS'],['?','How To Run This Class']
+];
+
+function go(n){
+  if(n<0||n>=total)return;
+  document.getElementById('ph'+cur).classList.remove('on');
+  document.getElementById('t'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('ph'+cur).classList.add('on');
+  var tab=document.getElementById('t'+cur);
+  tab.classList.add('active');
+  tab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  document.getElementById('prevBtn').disabled=(cur===0);
+  document.getElementById('nextBtn').disabled=(cur===total-1);
+  document.getElementById('phN').textContent=labels[cur][0];
+  document.getElementById('phSub').textContent=labels[cur][1];
+  document.getElementById('pb').style.width=(cur/(total-1)*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function render(){
+  var m=Math.floor(secs/60),s=secs%60;
+  document.getElementById('td').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  document.getElementById('td').className='tnum'+(secs<=10?' warn':'');
+}
+function tGo(){
+  if(running)return; running=true;
+  iv=setInterval(function(){
+    if(secs>0){ secs--; render(); }
+    else{ clearInterval(iv); running=false; alarm(); }
+  },1000);
+}
+function tPause(){ clearInterval(iv); running=false; }
+function tReset(){ tPause(); secs=currentMins*60; render(); }
+function setTimer(m){
+  tPause(); currentMins=m; secs=m*60; render();
+  document.getElementById('p95').className='tbtn preset'+(m===95?' sel':'');
+  document.getElementById('p45').className='tbtn preset'+(m===45?' sel':'');
+  document.getElementById('p40').className='tbtn preset'+(m===40?' sel':'');
+  document.getElementById('p2').className ='tbtn preset'+(m===2?' sel':'');
+}
+function alarm(){
+  var el=document.getElementById('td');
+  var f=0, fl=setInterval(function(){
+    el.style.opacity=(f%2===0)?'0.1':'1'; f++;
+    if(f>9){ clearInterval(fl); el.style.opacity='1'; }
+  },200);
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(freq,start,dur){
+      var o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=freq; o.type='sine';
+      g.gain.setValueAtTime(0,ctx.currentTime+start);
+      g.gain.linearRampToValueAtTime(0.4,ctx.currentTime+start+0.01);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+start+dur);
+      o.start(ctx.currentTime+start);
+      o.stop(ctx.currentTime+start+dur+0.05);
+    }
+    beep(880,0.0,0.15); beep(880,0.2,0.15); beep(1100,0.4,0.35);
+  }catch(e){}
+}
+render();
+</script>
+</body>
+</html>
