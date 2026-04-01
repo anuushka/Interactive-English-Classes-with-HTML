@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>OctoLearn · Friday · Good to Great</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root {
+    --amber:#E8A020; --amber-dim:#b87d18; --amber-bg:rgba(232,160,32,0.09);
+    --navy:#0f1d2e; --card:#162032; --border:#253548;
+    --text:#eee8df; --dim:#8a9aaa;
+    --green:#3dba78; --red:#e85c3a; --teal:#2e9caa; --purple:#9b72cf;
+  }
+  body { background:var(--navy); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; }
+  .hdr { background:var(--card); border-bottom:1px solid var(--border); padding:11px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; position:sticky; top:0; z-index:60; }
+  .logo { display:flex; align-items:center; gap:8px; }
+  .logo-icon { width:30px; height:30px; background:var(--amber); border-radius:7px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:15px; color:var(--navy); flex-shrink:0; }
+  .logo-name { font-size:13px; font-weight:600; }
+  .logo-sub  { font-size:10px; color:var(--dim); margin-top:1px; }
+  .timer { display:flex; align-items:center; gap:5px; background:var(--navy); border:1px solid var(--border); border-radius:10px; padding:5px 9px; }
+  .tnum { font-size:20px; font-weight:700; color:var(--amber); font-variant-numeric:tabular-nums; letter-spacing:0.02em; min-width:52px; text-align:center; }
+  .tnum.warn { color:var(--red); animation:blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .tbtn { width:26px; height:26px; border-radius:6px; border:none; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; font-family:inherit; }
+  .tbtn:active { transform:scale(.9); }
+  .go   { background:var(--green); color:#fff; }
+  .stop { background:var(--amber); color:var(--navy); }
+  .rst  { background:var(--border); color:var(--dim); }
+  .preset { background:var(--border); color:var(--dim); font-size:10px; padding:0 7px; width:auto; border-radius:5px; letter-spacing:.03em; }
+  .preset.sel { background:var(--amber); color:var(--navy); font-weight:600; }
+  .prog { height:3px; background:var(--border); }
+  .prog-bar { height:100%; background:var(--amber); transition:width .3s; }
+  .tabs { display:flex; align-items:center; overflow-x:auto; background:var(--card); border-bottom:1px solid var(--border); scrollbar-width:none; -webkit-overflow-scrolling:touch; position:sticky; top:53px; z-index:59; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .sect-label { flex-shrink:0; font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:0 8px; white-space:nowrap; }
+  .sect-label.inp { color:var(--purple); }
+  .sect-label.out { color:var(--amber); }
+  .sect-div { width:1px; height:28px; background:var(--border); flex-shrink:0; margin:0 3px; }
+  .tab { flex-shrink:0; padding:10px 12px; font-size:12px; font-weight:500; color:var(--dim); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:color .15s,border-color .15s; font-family:inherit; }
+  .tab.active         { color:var(--amber);  border-bottom-color:var(--amber); }
+  .tab.inp-tab.active { color:var(--purple); border-bottom-color:var(--purple); }
+  .tab.ov-tab.active  { color:var(--text);   border-bottom-color:var(--text); }
+  .tn { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:var(--border); font-size:10px; color:var(--dim); margin-right:5px; }
+  .tab.active .tn         { background:var(--amber);  color:var(--navy); }
+  .tab.inp-tab.active .tn { background:var(--purple); color:#fff; }
+  .tab.ov-tab.active .tn  { background:var(--text);   color:var(--navy); }
+  .phase { display:none; padding:20px 16px 96px; max-width:660px; margin:0 auto; }
+  .phase.on { display:block; animation:up .22s ease; }
+  @keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+  .ptag  { font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; margin-bottom:5px; }
+  .ptag.ov  { color:var(--dim); }
+  .ptag.inp { color:var(--purple); }
+  .ptag.out { color:var(--amber); }
+  .ptitle { font-size:26px; font-weight:700; line-height:1.2; margin-bottom:4px; }
+  .pdur   { font-size:12px; color:var(--dim); margin-bottom:22px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:14px; }
+  .card.hl { border-color:var(--amber); background:linear-gradient(135deg,#162032,#17221a); }
+  .card.gc { border-color:var(--green);  background:rgba(61,186,120,.07); }
+  .card.rc { border-color:var(--red);    background:rgba(232,92,58,.07); }
+  .card.tc { border-color:var(--teal);   background:rgba(46,156,170,.07); }
+  .card.pc { border-color:var(--purple); background:rgba(155,114,207,.07); }
+  .clabel { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
+  .ca{color:var(--amber);} .cg{color:var(--green);} .cr{color:var(--red);}
+  .ct{color:var(--teal);}  .cd{color:var(--dim);}   .cp{color:var(--purple);}
+  .card p { font-size:15px; line-height:1.75; font-weight:300; }
+  .card p strong { color:var(--amber); font-weight:600; }
+  .card p em { font-style:italic; }
+  .card.pc p strong { color:var(--purple); }
+  .outline-block { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:14px; }
+  .outline-header { padding:12px 16px; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; display:flex; align-items:center; justify-content:space-between; }
+  .outline-header.inp-h { background:rgba(155,114,207,.12); color:var(--purple); border-bottom:1px solid rgba(155,114,207,.2); }
+  .outline-header.out-h { background:rgba(232,160,32,.10);  color:var(--amber);  border-bottom:1px solid rgba(232,160,32,.2); }
+  .outline-header .total-time { font-size:13px; font-weight:700; letter-spacing:0; }
+  .outline-row { display:flex; align-items:center; padding:13px 16px; border-bottom:1px solid var(--border); gap:12px; cursor:pointer; transition:background .15s; }
+  .outline-row:last-child { border-bottom:none; }
+  .outline-row:active { background:rgba(255,255,255,.03); }
+  .outline-dot { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+  .dot-inp { background:rgba(155,114,207,.2); color:var(--purple); }
+  .dot-out { background:rgba(232,160,32,.15);  color:var(--amber); }
+  .outline-info { flex:1; }
+  .outline-title { font-size:14px; font-weight:500; line-height:1.3; }
+  .outline-desc  { font-size:12px; color:var(--dim); margin-top:2px; font-weight:300; }
+  .outline-time  { font-size:12px; font-weight:600; color:var(--dim); text-align:right; flex-shrink:0; white-space:nowrap; }
+  .outline-time .mins { font-size:18px; font-weight:700; display:block; text-align:right; }
+  .mins.inp-m { color:var(--purple); } .mins.out-m { color:var(--amber); }
+  .arrow { font-size:12px; color:var(--border); flex-shrink:0; }
+  .outline-total { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:var(--navy); border:1px solid var(--border); border-radius:14px; margin-bottom:14px; }
+  .total-label { font-size:12px; color:var(--dim); font-weight:500; }
+  .total-val   { font-size:22px; font-weight:700; color:var(--text); }
+  .structs { background:var(--navy); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin:12px 0; font-size:14px; line-height:2.1; font-weight:300; }
+  .structs .s { display:block; }
+  .structs .s::before { content:"✦ "; color:var(--purple); }
+  .s-fill { color:var(--purple); font-style:italic; }
+  .s-tag { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); margin-left:6px; vertical-align:middle; }
+  .quote { border-left:3px solid var(--amber); padding:12px 16px; margin:14px 0; background:var(--amber-bg); border-radius:0 8px 8px 0; }
+  .quote p { font-size:14px; line-height:1.7; font-style:italic; font-weight:300; }
+  .qattr { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--amber-dim); margin-top:6px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; margin:10px 0; }
+  th { text-align:left; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); padding:8px 12px; border-bottom:1px solid var(--border); font-weight:600; }
+  td { padding:10px 12px; border-bottom:1px solid var(--border); font-weight:300; }
+  tr:last-child td { border-bottom:none; }
+  .big { color:var(--amber); font-weight:700; font-size:15px; }
+  .sides { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; }
+  @media(max-width:460px){ .sides{ grid-template-columns:1fr; } }
+  .steps { margin:10px 0; }
+  .step  { display:flex; gap:12px; margin-bottom:13px; align-items:flex-start; }
+  .sn { width:26px; height:26px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:var(--amber); flex-shrink:0; }
+  .step.pi .sn { color:var(--purple); }
+  .step p { font-size:14px; line-height:1.65; font-weight:300; padding-top:3px; }
+  .step p strong { color:var(--amber); font-weight:600; }
+  .step p em { font-style:italic; }
+  .vocab-row { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .vocab-pill { background:var(--navy); border:1px solid var(--border); border-radius:20px; padding:6px 12px; font-size:13px; font-weight:300; }
+  .vocab-pill span { color:var(--amber); font-style:italic; font-size:11px; margin-left:4px; }
+  .closing-big { border:2px solid var(--amber); background:var(--amber-bg); border-radius:14px; padding:22px; text-align:center; font-size:18px; line-height:1.8; font-style:italic; margin:14px 0; }
+  .closing-big span { color:var(--amber); font-style:normal; font-weight:700; }
+  .example-say { background:rgba(61,186,120,.08); border:1px solid rgba(61,186,120,.3); border-radius:10px; padding:14px 16px; margin:10px 0; font-size:14px; font-style:italic; line-height:1.65; font-weight:300; }
+  .anchor-box { background:rgba(155,114,207,.1); border:1px solid rgba(155,114,207,.4); border-radius:12px; padding:16px 18px; margin:14px 0; font-size:15px; font-style:italic; line-height:1.7; font-weight:300; }
+  .anchor-label { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--purple); margin-bottom:8px; }
+  .algo-block { margin-top:14px; }
+  .algo-step { display:flex; gap:12px; align-items:flex-start; }
+  .algo-num { width:30px; height:30px; border-radius:50%; background:var(--amber); color:var(--navy); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+  .algo-body { flex:1; padding-bottom:4px; }
+  .algo-title { font-size:14px; font-weight:600; margin-bottom:4px; }
+  .algo-desc { font-size:13px; line-height:1.65; color:var(--dim); font-weight:300; }
+  .algo-arrow { font-size:18px; color:var(--border); text-align:center; padding:6px 0 6px 14px; }
+  .aq { color:var(--amber); font-style:italic; }
+  .chain-flow { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:14px 0; }
+  .chain-node { background:var(--navy); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:13px; font-weight:500; white-space:nowrap; }
+  .chain-node.teacher-node { background:var(--amber); color:var(--navy); border-color:var(--amber); font-weight:700; }
+  .chain-line { font-size:12px; color:var(--dim); white-space:nowrap; }
+  .chain-rules { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+  .chain-rule { display:flex; gap:10px; align-items:flex-start; }
+  .cr-icon { color:var(--amber); font-weight:700; font-size:14px; flex-shrink:0; margin-top:1px; }
+  .cr-text { font-size:13px; line-height:1.65; color:var(--dim); font-weight:300; }
+  .rules-list { display:flex; flex-direction:column; gap:12px; margin-top:4px; }
+  .rule-row { display:flex; gap:12px; align-items:flex-start; }
+  .rule-icon { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; margin-top:1px; }
+  .rule-icon.yes { background:rgba(61,186,120,.2); color:var(--green); }
+  .rule-icon.no  { background:rgba(232,92,58,.2);  color:var(--red); }
+  .rule-text { font-size:13px; line-height:1.65; font-weight:300; }
+  .rule-text strong { color:var(--text); font-weight:600; }
+  .tree { margin-top:10px; }
+  .tree-node.root { background:var(--red); color:#fff; border-radius:10px; padding:10px 14px; text-align:center; font-size:14px; font-weight:600; margin-bottom:12px; }
+  .tree-branches { display:flex; flex-direction:column; gap:8px; }
+  .tree-branch { background:var(--navy); border:1px solid rgba(232,92,58,.3); border-radius:10px; padding:12px 14px; }
+  .tree-condition { font-size:12px; font-weight:600; color:var(--red); letter-spacing:.04em; margin-bottom:5px; text-transform:uppercase; }
+  .tree-action { font-size:13px; line-height:1.6; color:var(--dim); font-weight:300; }
+  .elist { list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .elist li { font-size:14px; line-height:1.65; font-style:italic; font-weight:300; color:var(--dim); border-left:2px solid rgba(232,92,58,.5); padding-left:12px; }
+  .bnav { position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--border); padding:10px 16px; display:flex; justify-content:space-between; align-items:center; z-index:60; }
+  .nbtn { padding:10px 20px; border-radius:10px; border:1px solid var(--border); background:var(--navy); color:var(--dim); font-size:14px; font-weight:500; cursor:pointer; font-family:inherit; }
+  .nbtn:active { transform:scale(.96); }
+  .nbtn:disabled { opacity:.3; cursor:default; }
+  .nbtn.nx { background:var(--amber); color:var(--navy); border-color:var(--amber); }
+  .pctr { font-size:11px; color:var(--dim); text-align:center; line-height:1.6; }
+  .pctr strong { color:var(--amber); font-size:15px; display:block; }
+  hr { border:none; border-top:1px solid var(--border); margin:14px 0; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-icon">O</div>
+    <div>
+      <div class="logo-name">OctoLearn · Friday, Apr 3</div>
+      <div class="logo-sub">Good to Great · Ch.1 · Day 3 · B1</div>
+    </div>
+  </div>
+  <div class="timer">
+    <button class="tbtn go"   onclick="tGo()"    title="Start">▶</button>
+    <button class="tbtn stop" onclick="tPause()" title="Pause">⏸</button>
+    <div class="tnum" id="td">95:00</div>
+    <button class="tbtn rst"  onclick="tReset()" title="Reset">↺</button>
+    <button class="tbtn preset sel" id="p95" onclick="setTimer(95)">95</button>
+    <button class="tbtn preset"    id="p45" onclick="setTimer(45)">45</button>
+    <button class="tbtn preset"    id="p40" onclick="setTimer(40)">40</button>
+    <button class="tbtn preset"    id="p2"  onclick="setTimer(2)">2</button>
+  </div>
+</div>
+
+<div class="prog"><div class="prog-bar" id="pb" style="width:0%"></div></div>
+
+<div class="tabs">
+  <button class="tab ov-tab active" onclick="go(0)"  id="t0"><span class="tn">≡</span>Outline</button>
+  <div class="sect-div"></div>
+  <div class="sect-label inp">⬡ INPUT</div>
+  <button class="tab inp-tab"       onclick="go(1)"  id="t1"><span class="tn">G</span>Grammar</button>
+  <button class="tab inp-tab"       onclick="go(2)"  id="t2"><span class="tn">L</span>Listening</button>
+  <div class="sect-div"></div>
+  <div class="sect-label out">◈ OUTPUT</div>
+  <button class="tab"               onclick="go(3)"  id="t3"><span class="tn">0</span>Hook</button>
+  <button class="tab"               onclick="go(4)"  id="t4"><span class="tn">1</span>Data</button>
+  <button class="tab"               onclick="go(5)"  id="t5"><span class="tn">2</span>Prompt</button>
+  <button class="tab"               onclick="go(6)"  id="t6"><span class="tn">3</span>Chat</button>
+  <button class="tab ov-tab"        onclick="go(10)" id="t10"><span class="tn">?</span>How To</button>
+  <button class="tab"               onclick="go(7)"  id="t7"><span class="tn">4</span>Debate</button>
+  <button class="tab"               onclick="go(8)"  id="t8"><span class="tn">5</span>Close</button>
+  <div class="sect-div"></div>
+  <button class="tab"               onclick="go(9)"  id="t9"><span class="tn">!</span>SOS</button>
+</div>
+
+
+<!-- ══ PHASE 0 — OUTLINE ══ -->
+<div class="phase on" id="ph0">
+  <div class="ptag ov">Friday, April 3, 2026 · Day 3</div>
+  <div class="ptitle">Class Outline</div>
+  <div class="pdur">Tap any row to jump to that section</div>
+
+  <div class="outline-total">
+    <div>
+      <div class="total-label">Total class time</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:2px;">Good to Great · Ch.1 · pp.9–16 · Audiobook</div>
+    </div>
+    <div class="total-val">95 min</div>
+  </div>
+
+  <div class="outline-block">
+    <div class="outline-header inp-h">
+      <span>⬡ Input Phase</span>
+      <span class="total-time">45 min</span>
+    </div>
+    <div class="outline-row" onclick="go(1)">
+      <div class="outline-dot dot-inp">G</div>
+      <div class="outline-info">
+        <div class="outline-title">Grammar Noticing</div>
+        <div class="outline-desc">Conditional review — Zero / First / Second mixed naturally in storytelling</div>
+      </div>
+      <div class="outline-time"><span class="mins inp-m">5</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(2)">
+      <div class="outline-dot dot-inp">L</div>
+      <div class="outline-info">
+        <div class="outline-title">Listening: Good to Great Audiobook</div>
+        <div class="outline-desc">pp.9–16 · Phase 3 through end of Ch.1 · Schema from Thursday's reading</div>
+      </div>
+      <div class="outline-time"><span class="mins inp-m">40</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+
+  <div class="outline-block">
+    <div class="outline-header out-h">
+      <span>◈ Output Phase — Speaking Only</span>
+      <span class="total-time">45 min</span>
+    </div>
+    <div class="outline-row" onclick="go(3)">
+      <div class="outline-dot dot-out">0</div>
+      <div class="outline-info">
+        <div class="outline-title">Opening Hook</div>
+        <div class="outline-desc">Teacher anchor — "a brilliant plan that fell apart because of one wrong person"</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">1</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(4)">
+      <div class="outline-dot dot-out">1</div>
+      <div class="outline-info">
+        <div class="outline-title">Data: First Who, Then What</div>
+        <div class="outline-desc">Collins' key findings on people vs strategy — what the research actually showed</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">1</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(5)">
+      <div class="outline-dot dot-out">2</div>
+      <div class="outline-info">
+        <div class="outline-title">The Debate Prompt</div>
+        <div class="outline-desc">Right people first, then strategy — or strategy first? Was your team's problem the plan or the people?</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">1</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(6)">
+      <div class="outline-dot dot-out">3</div>
+      <div class="outline-info">
+        <div class="outline-title">Chat Pulse</div>
+        <div class="outline-desc">People or Strategy? — everyone types before calling names</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">1</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(7)">
+      <div class="outline-dot dot-out">4</div>
+      <div class="outline-info">
+        <div class="outline-title">Debate</div>
+        <div class="outline-desc">Side A: People first · Side B: Strategy first · Chain method · Flywheel vs Doom Loop</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">36</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+    <div class="outline-row" onclick="go(8)">
+      <div class="outline-dot dot-out">5</div>
+      <div class="outline-info">
+        <div class="outline-title">Closing Round</div>
+        <div class="outline-desc">Flywheel or Doom Loop — which do you recognize in your own life? Every student speaks.</div>
+      </div>
+      <div class="outline-time"><span class="mins out-m">5</span>min</div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Vocabulary goal · 22 words</div>
+    <p>5 pre-taught before listening, ~17 encountered in context. Students also carry over words from Thursday's reading. Harvest at 0:42.</p>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 1 — GRAMMAR ══ -->
+<div class="phase" id="ph1">
+  <div class="ptag inp">INPUT · 0:00–0:05</div>
+  <div class="ptitle">Grammar Noticing</div>
+  <div class="pdur">⏱ 5 min — Conditionals: Zero / First / Second mixed naturally</div>
+
+  <div class="card pc">
+    <div class="clabel cp">Teacher models — connect all three in one story</div>
+    <p>"Water boils if you heat it — that's just fact. If you listen to English every day, your ear will sharpen — I promise. If I had more discipline, I'd have finished this book months ago."</p>
+  </div>
+
+  <div class="structs">
+    <span class="s">If ___, ___ always happens <span class="s-tag">Zero — universal truth</span></span>
+    <span class="s">If ___, ___ will ___ <span class="s-tag">First — likely future</span></span>
+    <span class="s">If ___ were / had, ___ would ___ <span class="s-tag">Second — hypothetical</span></span>
+  </div>
+
+  <div class="card pc">
+    <div class="clabel cp">Connect to the book — ask this</div>
+    <p>"Collins basically argues: if a company has the right people, great results will follow — not sometimes, always. Which conditional is that?"</p>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">💬 Chat activation — everyone types at once</div>
+    <p><em>"Finish this sentence in chat: 'If I had joined a better team earlier, I would have ___' — GO!"</em></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">How to run it</div>
+    <div class="steps">
+      <div class="step pi"><div class="sn">1</div><p>Say all three model sentences in one connected story — natural, not separated by labels.</p></div>
+      <div class="step pi"><div class="sn">2</div><p>Show the three structures. Ask the book question. Students identify the conditional together.</p></div>
+      <div class="step pi"><div class="sn">3</div><p>Launch chat pulse. Read 3–4 answers aloud. Model back naturally. <strong>No drilling.</strong></p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 2 — LISTENING ══ -->
+<div class="phase" id="ph2">
+  <div class="ptag inp">INPUT · 0:05–0:45</div>
+  <div class="ptitle">Listening: Good to Great Audiobook</div>
+  <div class="pdur">⏱ 40 min — pp.9–16 · Phase 3 through end of Chapter 1</div>
+
+  <div class="card pc">
+    <div class="clabel cp">Schema activation — say this before playing (2 min)</div>
+    <p>"You already read the opening Thursday — Collins' question, the research, Walgreens. Now hear it. Today we go further into how he compared companies. <strong>Your one job: notice anything that lands differently when you hear it versus read it.</strong>"</p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Pre-teach 5 key words</div>
+    <div class="vocab-row">
+      <div class="vocab-pill">comparison <span>харьцуулалт</span></div>
+      <div class="vocab-pill">momentum <span>хурдац</span></div>
+      <div class="vocab-pill">flywheel <span>инерцийн дугуй</span></div>
+      <div class="vocab-pill">disciplined <span>сахилгатай</span></div>
+      <div class="vocab-pill">consistent <span>тогтмол</span></div>
+    </div>
+    <p style="margin-top:10px;font-size:13px;color:var(--dim);">Remaining 17 words: encountered in context from Thursday + today. Harvest at end.</p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">What pp.9–16 covers</div>
+    <table>
+      <tr><th>Section</th><th>Content</th></tr>
+      <tr><td><strong>Phase 3</strong></td><td>Inside vs outside CEOs — where great leaders came from</td></tr>
+      <tr><td><strong>Phase 4</strong></td><td>What the data actually showed — the surprise findings begin</td></tr>
+      <tr><td><strong>Findings preview</strong></td><td>Level 5 Leadership, First Who Then What, Brutal Facts, Hedgehog, Discipline, Flywheel</td></tr>
+      <tr><td><strong>End of Ch.1</strong></td><td>Collins frames what the rest of the book will prove</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Listening structure — 35 min</div>
+    <div class="steps">
+      <div class="step pi"><div class="sn">1</div><p><strong>0:07–0:20</strong> — Free listening. Mics off. Students just absorb. No interruption.</p></div>
+      <div class="step pi"><div class="sn">2</div><p><strong>0:20 pause</strong> — Chat pulse: <em>"One word for what Collins is building toward — GO."</em> Call one student.</p></div>
+      <div class="step pi"><div class="sn">3</div><p><strong>0:20–0:33</strong> — Continue listening. Students jot 1–2 ideas that stand out — not vocab, ideas.</p></div>
+      <div class="step pi"><div class="sn">4</div><p><strong>0:33 pause</strong> — Call one student: <em>"[Name] — did that match what you read Thursday, or did something surprise you?"</em></p></div>
+      <div class="step pi"><div class="sn">5</div><p><strong>0:33–0:42</strong> — Continue to end of Chapter 1. Let it finish naturally.</p></div>
+    </div>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Vocabulary harvest — 0:42–0:45 (3 min)</div>
+    <p><em>"Drop any words you noticed from today OR Thursday into the chat — ones you guessed, ones that stuck. GO."</em></p>
+    <p style="margin-top:10px;font-size:13px;color:var(--dim);">22-word target reached across both days through encounter, not memorization.</p>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 3 — HOOK ══ -->
+<div class="phase" id="ph3">
+  <div class="ptag out">OUTPUT · 0:45–0:46</div>
+  <div class="ptitle">Opening Hook</div>
+  <div class="pdur">⏱ 1 min — Teacher anchor before showing anything</div>
+
+  <div class="anchor-box">
+    <div class="anchor-label">Teacher anchor — 30 seconds, personal</div>
+    "I once saw a team with a brilliant plan completely fall apart because of one wrong person. Have you experienced that?"
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Then do this</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Say the anchor. Pause <strong>10 full seconds.</strong> Don't fill the silence.</p></div>
+      <div class="step"><div class="sn">2</div><p>Call one student: <em>"[Name] — has that happened to you? A great plan, wrong people?"</em></p></div>
+      <div class="step"><div class="sn">3</div><p>Take their answer in 20 seconds. Move to the data.</p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 4 — DATA ══ -->
+<div class="phase" id="ph4">
+  <div class="ptag out">OUTPUT · 0:46–0:47</div>
+  <div class="ptitle">First Who, Then What</div>
+  <div class="pdur">⏱ 1 min — Show before the prompt</div>
+
+  <div class="quote">
+    <p>"The good-to-great leaders understood three simple truths. First, if you begin with 'who' rather than 'what', you can more easily adapt. Second, if you have the right people, the problem of how to motivate them largely goes away. Third, if you have the wrong people, it doesn't matter whether you discover the right direction."</p>
+    <div class="qattr">— Jim Collins, Good to Great, Ch.1</div>
+  </div>
+
+  <div class="card">
+    <div class="clabel ca">What the research showed</div>
+    <table>
+      <tr><th>Good companies</th><th>Great companies</th></tr>
+      <tr><td>Strategy first → then find people to execute</td><td><span class="big">People first</span> → strategy emerges</td></tr>
+      <tr><td>Leaders as heroes with brilliant plans</td><td><span class="big">Level 5</span> humble leaders, right team</td></tr>
+      <tr><td>Motivate people toward a vision</td><td>Right people <span class="big">don't need</span> motivation</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 5 — PROMPT ══ -->
+<div class="phase" id="ph5">
+  <div class="ptag out">OUTPUT · 0:47–0:48</div>
+  <div class="ptitle">The Debate Prompt</div>
+  <div class="pdur">⏱ 1 min — Read aloud, then display</div>
+
+  <div class="card hl">
+    <div class="clabel ca">Display to students</div>
+    <p>Collins argues that great companies first got the <strong>right people on board</strong> — then figured out the strategy. Most companies do the opposite.</p>
+    <br>
+    <p>Do you agree? Think about a team, class, or company you've been part of. Was the problem the <strong>strategy</strong> — or the <strong>people</strong>?</p>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Second question — sharper</div>
+    <p><em>"If you had the wrong person in a key role, would a perfect strategy have saved you? Use a conditional."</em></p>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 6 — CHAT ══ -->
+<div class="phase" id="ph6">
+  <div class="ptag out">OUTPUT · 0:48–0:49</div>
+  <div class="ptitle">Chat Pulse</div>
+  <div class="pdur">⏱ 1 min — Activate everyone before calling names</div>
+
+  <div class="card gc">
+    <div class="clabel cg">💬 Everyone types at once</div>
+    <p><em>"Type <strong>P</strong> for People or <strong>S</strong> for Strategy — in your experience, which was the bigger problem? GO!"</em></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">After reading results</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Read the split: <em>"Most say P... interesting. Let's test that."</em></p></div>
+      <div class="step"><div class="sn">2</div><p>Call one P: <em>"[Name] — tell us the situation. What went wrong with the people?"</em></p></div>
+      <div class="step"><div class="sn">3</div><p>Call one S: <em>"[Name] — you said strategy. What was wrong with the plan?"</em></p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 10 — HOW TO (fixed) ══ -->
+<div class="phase" id="ph10">
+  <div class="ptag ov">Teacher Reference</div>
+  <div class="ptitle">How To Run This Class</div>
+  <div class="pdur">Read before class — keep open during output</div>
+
+  <div class="card hl">
+    <div class="clabel ca">Debate Algorithm</div>
+    <div class="algo-block">
+      <div class="algo-step"><div class="algo-num">1</div><div class="algo-body"><div class="algo-title">Assign sides — don't ask</div><div class="algo-desc">Split roster. Students defend assigned position whether they agree or not.</div></div></div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step"><div class="algo-num">2</div><div class="algo-body"><div class="algo-title">Side A: People first — 2 min</div><div class="algo-desc">Call a name. If they pause: <span class="aq">"Give us one real example where the people made the difference."</span></div></div></div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step"><div class="algo-num">3</div><div class="algo-body"><div class="algo-title">Side B: Strategy first — 2 min</div><div class="algo-desc">Must respond to what Side A said. <span class="aq">"[Name] — do you agree that people matter more than the plan?"</span></div></div></div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step"><div class="algo-num">4</div><div class="algo-body"><div class="algo-title">Open floor — Chain Method</div><div class="algo-desc">Stop being the hub. Students talk to each other. Pass conversation like a chain.</div></div></div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step"><div class="algo-num">5</div><div class="algo-body"><div class="algo-title">Inject Flywheel vs Doom Loop mid-debate</div><div class="algo-desc"><span class="aq">"Collins says most companies lurch from strategy to strategy — the Doom Loop. Is that a people problem or a strategy problem?"</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">The Chain Method</div>
+    <div class="chain-flow">
+      <div class="chain-node teacher-node">Teacher</div>
+      <div class="chain-line">calls →</div>
+      <div class="chain-node">Student A</div>
+      <div class="chain-line">passes to →</div>
+      <div class="chain-node">Student B</div>
+      <div class="chain-line">passes to →</div>
+      <div class="chain-node">Student C</div>
+      <div class="chain-line">→ next unheard</div>
+    </div>
+    <div class="chain-rules">
+      <div class="chain-rule"><div class="cr-icon">→</div><div class="cr-text">After each speaker: <span class="aq">"[Name] — do you agree with what [Name] just said?"</span></div></div>
+      <div class="chain-rule"><div class="cr-icon">→</div><div class="cr-text">Rule: never return to the same student until every student has spoken once.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Teacher Rules During Output</div>
+    <div class="rules-list">
+      <div class="rule-row"><div class="rule-icon no">✗</div><div class="rule-text"><strong>Never correct mid-speech.</strong> Let errors go during output.</div></div>
+      <div class="rule-row"><div class="rule-icon yes">✓</div><div class="rule-text"><strong>Mirror instead of fix.</strong> Repeat their idea back with correct form naturally.</div></div>
+      <div class="rule-row"><div class="rule-icon no">✗</div><div class="rule-text"><strong>Never ask the open room.</strong> Always call a name.</div></div>
+      <div class="rule-row"><div class="rule-icon yes">✓</div><div class="rule-text"><strong>Plant conditionals in your own speech.</strong> <em>"If that team had had the right people, the whole outcome would have been different."</em></div></div>
+    </div>
+  </div>
+
+  <div class="card rc">
+    <div class="clabel cr">Silence — Decision Tree</div>
+    <div class="tree">
+      <div class="tree-node root">Room goes quiet</div>
+      <div class="tree-branches">
+        <div class="tree-branch"><div class="tree-condition">Nobody speaking</div><div class="tree-action">Call the most confident student first. Ask a yes/no question.</div></div>
+        <div class="tree-branch"><div class="tree-condition">Same 2–3 dominating</div><div class="tree-action"><span class="aq">"[Name] — we haven't heard from you. People or strategy — which one?"</span></div></div>
+        <div class="tree-branch"><div class="tree-condition">Energy drop</div><div class="tree-action">Chat pulse: type Flywheel or Doom Loop. Then call someone who typed.</div></div>
+        <div class="tree-branch"><div class="tree-condition">Topic exhausted</div><div class="tree-action">Go to SOS tab — Flywheel question always restarts the room.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 7 — DEBATE ══ -->
+<div class="phase" id="ph7">
+  <div class="ptag out">OUTPUT · 0:49–1:25</div>
+  <div class="ptitle">Debate: People vs Strategy</div>
+  <div class="pdur">⏱ 36 min — Assign sides, chain method, Flywheel injection mid-debate</div>
+
+  <div class="sides">
+    <div class="card tc">
+      <div class="clabel ct">Side A — Collins' view</div>
+      <p><em>"Get the right people on the bus first. Strategy will follow. The who always matters more than the what."</em></p>
+    </div>
+    <div class="card rc">
+      <div class="clabel cr">Side B — Challenge</div>
+      <p><em>"Without a clear strategy, even great people waste their talent. Direction has to come first."</em></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">How to run it</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Assign sides. Split roster. No choosing.</p></div>
+      <div class="step"><div class="sn">2</div><p>Side A: <strong>2 min</strong> — call specific names.</p></div>
+      <div class="step"><div class="sn">3</div><p>Side B: <strong>2 min</strong> — direct response to what Side A said.</p></div>
+      <div class="step"><div class="sn">4</div><p>Open floor: Chain Method. Every student speaks before time ends.</p></div>
+    </div>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Trap question — inject mid-debate</div>
+    <p><em>"Collins says you can have the right people and the wrong strategy and still succeed — because the right people will figure it out. But can you have the right strategy with the wrong people? What happens then?"</em></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Follow-up prompts — use in order if needed</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p><em>"Think of OctoLearn — or your own workplace. Is the main challenge finding the right strategy, or finding the right people?"</em></p></div>
+      <div class="step"><div class="sn">2</div><p><em>"If you were building a team from scratch tomorrow, what's the first thing you'd decide — the mission or the people?"</em></p></div>
+      <div class="step"><div class="sn">3</div><p><em>"Collins says great companies got the right people on the bus before they knew where the bus was going. Does that make sense — or does it sound like chaos?"</em></p></div>
+    </div>
+  </div>
+
+  <div class="card hl">
+    <div class="clabel ca">Flywheel vs Doom Loop — inject in the final 8 min</div>
+    <p>Collins says the Doom Loop is what happens when companies keep lurching from strategy to strategy — each new leader brings a new plan, momentum never builds. The Flywheel is the opposite: consistent push in one direction until results compound.</p>
+    <br>
+    <p><em>"Is the Doom Loop a people problem or a strategy problem? Which one causes the other?"</em></p>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 8 — CLOSE ══ -->
+<div class="phase" id="ph8">
+  <div class="ptag out">OUTPUT · 1:25–1:30</div>
+  <div class="ptitle">Closing Round</div>
+  <div class="pdur">⏱ 5 min — One personal question, every student answers</div>
+
+  <div class="card hl">
+    <div class="clabel ca">Display to students — one question, no sentence stem</div>
+    <div class="closing-big">
+      "Collins describes the <span>Flywheel</span> and the <span>Doom Loop</span>.<br>Which one do you recognize more — in organizations around you, or in your own life?"
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Flywheel vs Doom Loop — remind students</div>
+    <table>
+      <tr><th>Flywheel</th><th>Doom Loop</th></tr>
+      <tr><td>Consistent push, one direction</td><td>Constant change, chasing trends</td></tr>
+      <tr><td>Momentum builds slowly, then compounds</td><td>Lurching from idea to idea</td></tr>
+      <tr><td>Discipline over time</td><td>Reactive, no sustained effort</td></tr>
+    </table>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Example answers</div>
+    <div class="example-say">"I recognize the Doom Loop in my company — every year there's a new strategy, a new direction. Nothing ever compounds. If we had stayed consistent, we would have grown by now."</div>
+    <div class="example-say">"Honestly, my own learning has been a Doom Loop. I've been switching between English apps, courses, methods — no momentum. If I had stayed with one method, I'd be much further."</div>
+    <div class="example-say">"OctoLearn feels like a Flywheel to me — consistent classes, consistent method. Results are starting to compound."</div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">How to run it</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Fixed order — alphabetical or screen order. Everyone knows their turn is coming.</p></div>
+      <div class="step"><div class="sn">2</div><p><strong>30 seconds each.</strong> This is personal — let it breathe a little more than usual.</p></div>
+      <div class="step"><div class="sn">3</div><p>Teacher responds with one word: <em>"Honest." / "Real." / "Strong." / "Exactly."</em></p></div>
+      <div class="step"><div class="sn">4</div><p>No correction. No follow-up. The conditionals will appear naturally.</p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ PHASE 9 — SOS ══ -->
+<div class="phase" id="ph9">
+  <div class="ptag out">Emergency — Use Any Time</div>
+  <div class="ptitle">SOS Prompts</div>
+  <div class="pdur">Drop one the moment energy drops — don't wait</div>
+
+  <div class="card rc">
+    <div class="clabel cr">🚨 Content-specific — use immediately</div>
+    <ul class="elist" style="margin-top:4px">
+      <li>"If Collins walked into your workplace right now — would he say you have the right people on the bus? Be honest."</li>
+      <li>"Have you ever been the wrong person on a team? Or worked with someone who was?"</li>
+      <li>"Collins says the right people don't need to be motivated. Do you believe that — or is motivation always necessary?"</li>
+      <li>"Is OctoLearn a Flywheel or a Doom Loop? What would need to change for it to be a Flywheel?"</li>
+      <li>"If you had started this English program 3 years ago and stayed consistent, where would you be now?"</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Universal resets — always work</div>
+    <ul class="elist" style="margin-top:4px">
+      <li>"[Name] just said ___. [Name] — do you agree or not?"</li>
+      <li>"Type in chat: Flywheel or Doom Loop — your life right now. GO."</li>
+      <li>"[Name] — be honest. People or strategy — which one is YOUR weak point?"</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="nbtn" id="prevBtn" onclick="go(cur-1)" disabled>← Prev</button>
+  <div class="pctr">
+    <strong id="phN">≡</strong>
+    <span id="phSub">Class Outline</span>
+  </div>
+  <button class="nbtn nx" id="nextBtn" onclick="go(cur+1)">Next →</button>
+</div>
+
+<script>
+var cur=0, total=11;
+var currentMins=95, secs=95*60, running=false, iv=null;
+var labels=[
+  ['≡','Class Outline'],
+  ['G','Grammar · Input'],['L','Listening · Input'],
+  ['0','Hook · Output'],['1','Data · Output'],['2','Prompt · Output'],
+  ['3','Chat · Output'],['4','Debate · Output'],['5','Close · Output'],
+  ['!','SOS'],['?','How To Run This Class']
+];
+function go(n){
+  if(n<0||n>=total)return;
+  document.getElementById('ph'+cur).classList.remove('on');
+  document.getElementById('t'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('ph'+cur).classList.add('on');
+  var tab=document.getElementById('t'+cur);
+  tab.classList.add('active');
+  tab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  document.getElementById('prevBtn').disabled=(cur===0);
+  document.getElementById('nextBtn').disabled=(cur===total-1);
+  document.getElementById('phN').textContent=labels[cur][0];
+  document.getElementById('phSub').textContent=labels[cur][1];
+  document.getElementById('pb').style.width=(cur/(total-1)*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function render(){
+  var m=Math.floor(secs/60),s=secs%60;
+  document.getElementById('td').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  document.getElementById('td').className='tnum'+(secs<=10?' warn':'');
+}
+function tGo(){
+  if(running)return; running=true;
+  iv=setInterval(function(){
+    if(secs>0){ secs--; render(); }
+    else{ clearInterval(iv); running=false; alarm(); }
+  },1000);
+}
+function tPause(){ clearInterval(iv); running=false; }
+function tReset(){ tPause(); secs=currentMins*60; render(); }
+function setTimer(m){
+  tPause(); currentMins=m; secs=m*60; render();
+  document.getElementById('p95').className='tbtn preset'+(m===95?' sel':'');
+  document.getElementById('p45').className='tbtn preset'+(m===45?' sel':'');
+  document.getElementById('p40').className='tbtn preset'+(m===40?' sel':'');
+  document.getElementById('p2').className ='tbtn preset'+(m===2?' sel':'');
+}
+function alarm(){
+  var el=document.getElementById('td');
+  var f=0,fl=setInterval(function(){
+    el.style.opacity=(f%2===0)?'0.1':'1'; f++;
+    if(f>9){ clearInterval(fl); el.style.opacity='1'; }
+  },200);
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(freq,start,dur){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=freq; o.type='sine';
+      g.gain.setValueAtTime(0,ctx.currentTime+start);
+      g.gain.linearRampToValueAtTime(0.4,ctx.currentTime+start+0.01);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+start+dur);
+      o.start(ctx.currentTime+start);
+      o.stop(ctx.currentTime+start+dur+0.05);
+    }
+    beep(880,0.0,0.15); beep(880,0.2,0.15); beep(1100,0.4,0.35);
+  }catch(e){}
+}
+render();
+</script>
+</body>
+</html>
