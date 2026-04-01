@@ -1,7 +1,9 @@
 # Interactive-HTML-classes
-_To save time once the template options are ready 
-_
-HTML for English morning/evening classes and flashcard
+
+<b>HTML for English morning/evening classes and flashcard</b>
+
+<i>To save time once the template options are ready</i>
+
 
 <h2><a href="https://github.com/anuushka/interactive-HTML-classes/blob/main/octolearn-template.html">Template 1</a></h2>
 
