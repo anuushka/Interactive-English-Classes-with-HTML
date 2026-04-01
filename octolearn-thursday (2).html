@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>OctoLearn · Good to Great · Thursday</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root {
+    --amber:#E8A020; --amber-dim:#b87d18; --amber-bg:rgba(232,160,32,0.09);
+    --navy:#0f1d2e; --card:#162032; --border:#253548;
+    --text:#eee8df; --dim:#8a9aaa;
+    --green:#3dba78; --red:#e85c3a; --teal:#2e9caa; --purple:#9b72cf;
+  }
+  body { background:var(--navy); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; }
+
+  /* HEADER */
+  .hdr { background:var(--card); border-bottom:1px solid var(--border); padding:11px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; position:sticky; top:0; z-index:60; }
+  .logo { display:flex; align-items:center; gap:8px; }
+  .logo-icon { width:30px; height:30px; background:var(--amber); border-radius:7px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:15px; color:var(--navy); flex-shrink:0; }
+  .logo-name { font-size:13px; font-weight:600; }
+  .logo-sub  { font-size:10px; color:var(--dim); margin-top:1px; }
+
+  /* TIMER */
+  .timer { display:flex; align-items:center; gap:5px; background:var(--navy); border:1px solid var(--border); border-radius:10px; padding:5px 9px; }
+  .tnum { font-size:20px; font-weight:700; color:var(--amber); font-variant-numeric:tabular-nums; letter-spacing:0.02em; min-width:52px; text-align:center; }
+  .tnum.warn { color:var(--red); animation:blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .tbtn { width:26px; height:26px; border-radius:6px; border:none; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; font-family:inherit; }
+  .tbtn:active { transform:scale(.9); }
+  .go   { background:var(--green); color:#fff; }
+  .stop { background:var(--amber); color:var(--navy); }
+  .rst  { background:var(--border); color:var(--dim); }
+  .preset { background:var(--border); color:var(--dim); font-size:10px; padding:0 7px; width:auto; border-radius:5px; letter-spacing:.03em; }
+  .preset.sel { background:var(--amber); color:var(--navy); font-weight:600; }
+
+  /* PROGRESS */
+  .prog { height:3px; background:var(--border); }
+  .prog-bar { height:100%; background:var(--amber); transition:width .3s; }
+
+  /* TABS */
+  .tabs { display:flex; align-items:center; overflow-x:auto; background:var(--card); border-bottom:1px solid var(--border); scrollbar-width:none; -webkit-overflow-scrolling:touch; position:sticky; top:53px; z-index:59; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .sect-label { flex-shrink:0; font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:0 8px; white-space:nowrap; display:flex; align-items:center; }
+  .sect-label.inp { color:var(--purple); }
+  .sect-label.out { color:var(--amber); }
+  .sect-div { width:1px; height:28px; background:var(--border); flex-shrink:0; margin:0 3px; }
+  .tab { flex-shrink:0; padding:10px 12px; font-size:12px; font-weight:500; color:var(--dim); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:color .15s,border-color .15s; font-family:inherit; }
+  .tab.active     { color:var(--amber);  border-bottom-color:var(--amber); }
+  .tab.inp-tab.active { color:var(--purple); border-bottom-color:var(--purple); }
+  .tab.ov-tab.active  { color:var(--text);   border-bottom-color:var(--text); }
+  .tn { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:var(--border); font-size:10px; color:var(--dim); margin-right:5px; }
+  .tab.active .tn     { background:var(--amber);  color:var(--navy); }
+  .tab.inp-tab.active .tn { background:var(--purple); color:#fff; }
+  .tab.ov-tab.active  .tn { background:var(--text);   color:var(--navy); }
+
+  /* PHASES */
+  .phase { display:none; padding:20px 16px 96px; max-width:660px; margin:0 auto; }
+  .phase.on { display:block; animation:up .22s ease; }
+  @keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+  /* PHASE HEAD */
+  .ptag  { font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; margin-bottom:5px; }
+  .ptag.ov  { color:var(--dim); }
+  .ptag.inp { color:var(--purple); }
+  .ptag.out { color:var(--amber); }
+  .ptitle{ font-size:26px; font-weight:700; line-height:1.2; margin-bottom:4px; }
+  .pdur  { font-size:12px; color:var(--dim); margin-bottom:22px; }
+
+  /* CARDS */
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:14px; }
+  .card.hl { border-color:var(--amber); background:linear-gradient(135deg,#162032,#17221a); }
+  .card.gc { border-color:var(--green);  background:rgba(61,186,120,.07); }
+  .card.rc { border-color:var(--red);    background:rgba(232,92,58,.07); }
+  .card.tc { border-color:var(--teal);   background:rgba(46,156,170,.07); }
+  .card.pc { border-color:var(--purple); background:rgba(155,114,207,.07); }
+  .clabel { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
+  .ca{color:var(--amber);} .cg{color:var(--green);} .cr{color:var(--red);}
+  .ct{color:var(--teal);}  .cd{color:var(--dim);}   .cp{color:var(--purple);}
+  .card p { font-size:15px; line-height:1.75; font-weight:300; }
+  .card p strong { color:var(--amber); font-weight:600; }
+  .card p em { font-style:italic; }
+  .card.pc p strong { color:var(--purple); }
+
+  /* ── OUTLINE STYLES ── */
+  .outline-block {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:14px; overflow:hidden; margin-bottom:14px;
+  }
+  .outline-header {
+    padding:12px 16px;
+    font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .outline-header.inp-h { background:rgba(155,114,207,.12); color:var(--purple); border-bottom:1px solid rgba(155,114,207,.2); }
+  .outline-header.out-h { background:rgba(232,160,32,.10); color:var(--amber);  border-bottom:1px solid rgba(232,160,32,.2); }
+  .outline-header .total-time { font-size:13px; font-weight:700; letter-spacing:0; }
+
+  .outline-row {
+    display:flex; align-items:center;
+    padding:13px 16px;
+    border-bottom:1px solid var(--border);
+    gap:12px;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .outline-row:last-child { border-bottom:none; }
+  .outline-row:active { background:rgba(255,255,255,.03); }
+
+  .outline-dot {
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; flex-shrink:0;
+  }
+  .dot-inp { background:rgba(155,114,207,.2); color:var(--purple); }
+  .dot-out { background:rgba(232,160,32,.15);  color:var(--amber); }
+
+  .outline-info { flex:1; }
+  .outline-title { font-size:14px; font-weight:500; line-height:1.3; }
+  .outline-desc  { font-size:12px; color:var(--dim); margin-top:2px; font-weight:300; }
+
+  .outline-time {
+    font-size:12px; font-weight:600; color:var(--dim);
+    text-align:right; flex-shrink:0; white-space:nowrap;
+  }
+  .outline-time .mins { font-size:18px; font-weight:700; display:block; text-align:right; }
+  .outline-time .mins.inp-m { color:var(--purple); }
+  .outline-time .mins.out-m { color:var(--amber); }
+
+  .arrow { font-size:12px; color:var(--border); flex-shrink:0; }
+
+  .outline-total {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px;
+    background:var(--navy); border:1px solid var(--border);
+    border-radius:14px; margin-bottom:14px;
+  }
+  .total-label { font-size:12px; color:var(--dim); font-weight:500; }
+  .total-val   { font-size:22px; font-weight:700; color:var(--text); }
+
+  /* STRUCTURES BOX */
+  .structs { background:var(--navy); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin:12px 0; font-size:14px; line-height:2; font-weight:300; }
+  .structs .s { display:block; }
+  .structs .s::before { content:"✦ "; color:var(--purple); }
+  .s-fill { color:var(--purple); font-style:italic; }
+
+  /* QUOTE */
+  .quote { border-left:3px solid var(--amber); padding:12px 16px; margin:14px 0; background:var(--amber-bg); border-radius:0 8px 8px 0; }
+  .quote p { font-size:14px; line-height:1.7; font-style:italic; font-weight:300; }
+  .qattr { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--amber-dim); margin-top:6px; }
+
+  /* TABLE */
+  table { width:100%; border-collapse:collapse; font-size:14px; margin:10px 0; }
+  th { text-align:left; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); padding:8px 12px; border-bottom:1px solid var(--border); font-weight:600; }
+  td { padding:10px 12px; border-bottom:1px solid var(--border); font-weight:300; }
+  tr:last-child td { border-bottom:none; }
+  .big { color:var(--amber); font-weight:700; font-size:16px; }
+
+  /* SIDES */
+  .sides { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; }
+  @media(max-width:460px){ .sides{ grid-template-columns:1fr; } }
+
+  /* STEPS */
+  .steps { margin:10px 0; }
+  .step  { display:flex; gap:12px; margin-bottom:13px; align-items:flex-start; }
+  .sn { width:26px; height:26px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:var(--amber); flex-shrink:0; }
+  .step.pi .sn { color:var(--purple); }
+  .step p { font-size:14px; line-height:1.65; font-weight:300; padding-top:3px; }
+  .step p strong { color:var(--amber); font-weight:600; }
+  .step p em { font-style:italic; }
+
+  /* VOCAB */
+  .vocab-row { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .vocab-pill { background:var(--navy); border:1px solid var(--border); border-radius:20px; padding:6px 12px; font-size:13px; font-weight:300; }
+  .vocab-pill span { color:var(--amber); font-style:italic; font-size:11px; margin-left:4px; }
+
+  /* CLOSING */
+  .closing-big { border:2px solid var(--amber); background:var(--amber-bg); border-radius:14px; padding:22px; text-align:center; font-size:20px; line-height:1.7; font-style:italic; margin:14px 0; }
+  .closing-big span { color:var(--amber); font-style:normal; font-weight:700; }
+  .example-say { background:rgba(61,186,120,.08); border:1px solid rgba(61,186,120,.3); border-radius:10px; padding:14px 16px; margin:10px 0; font-size:14px; font-style:italic; line-height:1.65; font-weight:300; }
+
+  /* EMERGENCY */
+  .elist { list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .elist li { font-size:14px; line-height:1.65; font-style:italic; font-weight:300; color:var(--dim); border-left:2px solid rgba(232,92,58,.5); padding-left:12px; }
+
+  /* BOTTOM NAV */
+  .bnav { position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--border); padding:10px 16px; display:flex; justify-content:space-between; align-items:center; z-index:60; }
+  .nbtn { padding:10px 20px; border-radius:10px; border:1px solid var(--border); background:var(--navy); color:var(--dim); font-size:14px; font-weight:500; cursor:pointer; font-family:inherit; }
+  .nbtn:active { transform:scale(.96); }
+  .nbtn:disabled { opacity:.3; cursor:default; }
+  .nbtn.nx { background:var(--amber); color:var(--navy); border-color:var(--amber); }
+  .pctr { font-size:11px; color:var(--dim); text-align:center; line-height:1.6; }
+  .pctr strong { color:var(--amber); font-size:15px; display:block; }
+
+  hr { border:none; border-top:1px solid var(--border); margin:14px 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-icon">O</div>
+    <div>
+      <div class="logo-name">OctoLearn · Thursday</div>
+      <div class="logo-sub">Good to Great · Ch.1 · pp.1–9 · B1</div>
+    </div>
+  </div>
+  <div class="timer">
+    <button class="tbtn go"   onclick="tGo()"    title="Start">▶</button>
+    <button class="tbtn stop" onclick="tPause()" title="Pause">⏸</button>
+    <div class="tnum" id="td">95:00</div>
+    <button class="tbtn rst"  onclick="tReset()" title="Reset">↺</button>
+    <button class="tbtn preset sel" id="p95" onclick="setTimer(95)">95</button>
+    <button class="tbtn preset"    id="p45" onclick="setTimer(45)">45</button>
+    <button class="tbtn preset"    id="p40" onclick="setTimer(40)">40</button>
+    <button class="tbtn preset"    id="p2"  onclick="setTimer(2)">2</button>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog"><div class="prog-bar" id="pb" style="width:0%"></div></div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab ov-tab active" onclick="go(0)" id="t0"><span class="tn">≡</span>Outline</button>
+  <div class="sect-div"></div>
+  <div class="sect-label inp">⬡ INPUT</div>
+  <button class="tab inp-tab" onclick="go(1)" id="t1"><span class="tn">G</span>Grammar</button>
+  <button class="tab inp-tab" onclick="go(2)" id="t2"><span class="tn">R</span>Reading</button>
+  <div class="sect-div"></div>
+  <div class="sect-label out">◈ OUTPUT</div>
+  <button class="tab" onclick="go(3)"  id="t3"><span class="tn">0</span>Hook</button>
+  <button class="tab" onclick="go(4)"  id="t4"><span class="tn">1</span>Data</button>
+  <button class="tab" onclick="go(5)"  id="t5"><span class="tn">2</span>Prompt</button>
+  <button class="tab" onclick="go(6)"  id="t6"><span class="tn">3</span>Chat</button>
+  <button class="tab ov-tab" onclick="go(10)" id="t10"><span class="tn">?</span>How To</button>
+  <button class="tab" onclick="go(7)"  id="t7"><span class="tn">4</span>Debate</button>
+  <button class="tab" onclick="go(8)"  id="t8"><span class="tn">5</span>Close</button>
+  <div class="sect-div"></div>
+  <button class="tab" onclick="go(9)"  id="t9"><span class="tn">!</span>SOS</button>
+</div>
+
+
+<!-- ══════════════ PHASE 0 — OUTLINE ══════════════ -->
+<div class="phase on" id="ph0">
+  <div class="ptag ov">Thursday · 90 Min Class</div>
+  <div class="ptitle">Class Outline</div>
+  <div class="pdur">Tap any row to jump to that section</div>
+
+  <!-- TOTAL -->
+  <div class="outline-total">
+    <div>
+      <div class="total-label">Total class time</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:2px;">Good to Great · Ch.1 · pp.1–9</div>
+    </div>
+    <div class="total-val">90 min</div>
+  </div>
+
+  <!-- INPUT BLOCK -->
+  <div class="outline-block">
+    <div class="outline-header inp-h">
+      <span>⬡ Input Phase</span>
+      <span class="total-time">45 min</span>
+    </div>
+
+    <div class="outline-row" onclick="go(1)">
+      <div class="outline-dot dot-inp">G</div>
+      <div class="outline-info">
+        <div class="outline-title">Grammar Noticing</div>
+        <div class="outline-desc">Talking about experience with nuance — I've been meaning to... / I've been putting off... / I'd been thinking about it for years before I...</div>
+      </div>
+      <div class="outline-time">
+        <span class="mins inp-m">5</span>min
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="outline-row" onclick="go(2)">
+      <div class="outline-dot dot-inp">R</div>
+      <div class="outline-info">
+        <div class="outline-title">Reading: Good to Great Ch.1</div>
+        <div class="outline-desc">pp.1–9 · Teacher reads aloud · 2 pause points · Covers Phase 1 (The Search) and Phase 2 (Compared to What?)</div>
+      </div>
+      <div class="outline-time">
+        <span class="mins inp-m">40</span>min
+      </div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+
+  <!-- OUTPUT BLOCK -->
+  <div class="outline-block">
+    <div class="outline-header out-h">
+      <span>◈ Output Phase — Speaking Only</span>
+      <span class="total-time">45 min</span>
+    </div>
+
+    <div class="outline-row" onclick="go(3)">
+      <div class="outline-dot dot-out">0</div>
+      <div class="outline-info">
+        <div class="outline-title">Opening Hook</div>
+        <div class="outline-desc">Think of one real person who transformed after being average — 10 sec silence</div>
+      </div>
+      <div class="outline-time">
+        <span class="mins out-m">1</span>min
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="outline-row" onclick="go(4)">
+      <div class="outline-dot dot-out">1</div>
+      <div class="outline-info">
+        <div class="outline-title">The Walgreens Data</div>
+        <div class="outline-desc">Show the numbers — 40 years average, then beat Intel ×2, GE ×5, Coca-Cola ×8</div>
+      </div>
+      <div class="outline-time">
+        <span class="mins out-m">1</span>min
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="outline-row" onclick="go(5)">
+      <div class="outline-dot dot-out">2</div>
+      <div class="outline-info">
+        <div class="outline-title">The Debate Prompt</div>
+        <div class="outline-desc">Can a company — or a person — truly transform after decades of being average?</div>
+      </div>
+      <div class="outline-time">
+        <span class="mins out-m">1</span>min
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="outline-row" onclick="go(6)">
+      <div class="outline-dot dot-out">3</div>
+      <div class="outline-info">
+        <div class="outline-title">Chat Pulse</div>
+        <div class="outline-desc">Everyone types YES or NO — activates the whole room before calling names</div>
+      </div>
+      <div class="outline-time">
+        <span class="mins out-m">1</span>min
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="outline-row" onclick="go(7)">
+      <div class="outline-dot dot-out">4</div>
+      <div class="outline-info">
+        <div class="outline-title">Split Debate</div>
+        <div class="outline-desc">Side A: transformation is always possible · Side B: 40 years of average becomes permanent</div>
+      </div>
+      <div class="outline-time">
+        <span class="mins out-m">36</span>min
+      </div>
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="outline-row" onclick="go(8)">
+      <div class="outline-dot dot-out">5</div>
+      <div class="outline-info">
+        <div class="outline-title">Closing Round</div>
+        <div class="outline-desc">Every student speaks — "My personal Walgreens moment is ___" — fixed order, 20 sec each</div>
+      </div>
+      <div class="outline-time">
+        <span class="mins out-m">5</span>min
+      </div>
+      <div class="arrow">›</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Vocabulary goal</div>
+    <p>Target <strong>22 words</strong> today — 5 pre-taught before reading, ~17 encountered in context, harvested at 0:42. Students do not memorize a list. They encounter words through meaning.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════ PHASE 1 — GRAMMAR ══════════════ -->
+<div class="phase" id="ph1">
+  <div class="ptag inp">INPUT · 0:00–0:05</div>
+  <div class="ptitle">Grammar Noticing</div>
+  <div class="pdur">⏱ 5 min — Talking about experience with nuance</div>
+
+  <div class="card pc">
+    <div class="clabel cp">Teacher models first — no rules, no table</div>
+    <p>"I've been meaning to read this book for months. I kept putting it off. But I'd been thinking about leadership for years before I finally started."</p>
+  </div>
+
+  <div class="structs">
+    <span class="s">I've been meaning to <span class="s-fill">___</span></span>
+    <span class="s">I've been putting off <span class="s-fill">___</span></span>
+    <span class="s">I'd been thinking about <span class="s-fill">___</span> for years before I <span class="s-fill">___</span></span>
+    <span class="s">I've been avoiding <span class="s-fill">___</span> because <span class="s-fill">___</span></span>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">💬 Chat activation — everyone types at once</div>
+    <p><em>"Type in chat: finish this sentence — 'Something I've been putting off is ___' — GO!"</em></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">How to run it</div>
+    <div class="steps">
+      <div class="step pi"><div class="sn">1</div><p>Teacher says the model sentences above — personal and genuine, not scripted.</p></div>
+      <div class="step pi"><div class="sn">2</div><p>Show structures on screen. Launch chat pulse. Students type simultaneously — no one on the spot.</p></div>
+      <div class="step pi"><div class="sn">3</div><p>Read 3–4 answers aloud. Model the structure back naturally: <em>"So you've been meaning to do that for a while."</em></p></div>
+      <div class="step pi"><div class="sn">4</div><p><strong>Do not correct. Do not drill.</strong> These structures will reappear naturally in the output phase. Move on at 5 min.</p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ PHASE 2 — READING ══════════════ -->
+<div class="phase" id="ph2">
+  <div class="ptag inp">INPUT · 0:05–0:45</div>
+  <div class="ptitle">Reading Ch.1 pp.1–9</div>
+  <div class="pdur">⏱ 40 min — Through end of Phase 2 "Compared to What?"</div>
+
+  <div class="card pc">
+    <div class="clabel cp">Schema activation — say this before reading (2 min)</div>
+    <p>"Collins spent 5 years asking one question: why do some companies become great while most stay good? Today we read how he framed that question and how he searched for the answer. Don't chase every word — <strong>follow the argument.</strong>"</p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Pre-teach 5 key words before reading</div>
+    <div class="vocab-row">
+      <div class="vocab-pill">mediocrity <span>дунджийн байдал</span></div>
+      <div class="vocab-pill">relentless <span>тасралтгүй</span></div>
+      <div class="vocab-pill">catalyst <span>өдөөгч</span></div>
+      <div class="vocab-pill">sustained <span>тогтвортой</span></div>
+      <div class="vocab-pill">transition <span>шилжилт</span></div>
+    </div>
+    <p style="margin-top:10px;font-size:13px;color:var(--dim);">Remaining 17 words: students encounter in context. Harvest at end.</p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Reading structure — 35 min</div>
+    <div class="steps">
+      <div class="step pi"><div class="sn">1</div><p><strong>0:07–0:22</strong> — Teacher reads pp.1–4 aloud at natural pace. Students follow their own copy.</p></div>
+      <div class="step pi"><div class="sn">2</div><p><strong>0:22 pause</strong> — Chat pulse: <em>"One word for Collins' opening argument — GO."</em> Call one student to elaborate.</p></div>
+      <div class="step pi"><div class="sn">3</div><p><strong>0:22–0:35</strong> — Teacher reads pp.5–7. Phase 1: The Search — the death march of financial analysis, 11 companies found.</p></div>
+      <div class="step pi"><div class="sn">4</div><p><strong>0:35 pause</strong> — Call one student: <em>"[Name] — Collins found Walgreens beat Intel. Does that surprise you?"</em></p></div>
+      <div class="step pi"><div class="sn">5</div><p><strong>0:35–0:42</strong> — Teacher reads pp.7–9. Phase 2: Compared to What? — the comparison group method. Stop here.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">What pp.1–9 covers</div>
+    <table>
+      <tr><th>Pages</th><th>Content</th></tr>
+      <tr><td>pp.1–2</td><td>"Good is the enemy of great" — the opening claim</td></tr>
+      <tr><td>pp.2–3</td><td>The Meehan dinner — origin of the research question</td></tr>
+      <tr><td>pp.3–5</td><td>Research overview — 5 years, 21 researchers, 1,435 companies</td></tr>
+      <tr><td>pp.5–7</td><td><strong>Phase 1: The Search</strong> — criteria, 6-month analysis, 11 companies</td></tr>
+      <tr><td>pp.7–9</td><td><strong>Phase 2: Compared to What?</strong> — the comparison method begins</td></tr>
+    </table>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Vocabulary harvest — 0:42–0:45 (3 min)</div>
+    <p><em>"Drop any words you noticed into the chat — ones you guessed, ones that stuck. GO."</em></p>
+    <p style="margin-top:10px;font-size:13px;color:var(--dim);">Teacher reads aloud, confirms quickly. 22-word target hit through encounter, not memorization.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════ PHASE 3 — HOOK ══════════════ -->
+<div class="phase" id="ph3">
+  <div class="ptag out">OUTPUT · 0:45–0:46</div>
+  <div class="ptitle">Opening Hook</div>
+  <div class="pdur">⏱ 1 min — Say this before showing any prompt</div>
+
+  <div class="card hl">
+    <div class="clabel ca">Say this first</div>
+    <p>"Before we debate — think of <strong>one person you know personally.</strong> Not a celebrity. Not a famous CEO. Someone in your real life who was average for a long time — and then transformed. Does that person exist? <strong>Take 10 seconds.</strong>"</p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">Then do this</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Go <strong>completely silent for 10 seconds.</strong> Don't fill the space.</p></div>
+      <div class="step"><div class="sn">2</div><p>Call one student by name: <em>"[Name] — did someone come to mind?"</em></p></div>
+      <div class="step"><div class="sn">3</div><p>Take their answer. Say <em>"Keep that person in mind."</em> Move to the data.</p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ PHASE 4 — DATA ══════════════ -->
+<div class="phase" id="ph4">
+  <div class="ptag out">OUTPUT · 0:46–0:47</div>
+  <div class="ptitle">The Walgreens Data</div>
+  <div class="pdur">⏱ 1 min — Show before the debate prompt</div>
+
+  <div class="quote">
+    <p>"For over forty years, Walgreens had bumped along as a very average company... Then in 1975, seemingly out of nowhere — bang! — Walgreens began to climb... and climb... and it just kept climbing."</p>
+    <div class="qattr">— Jim Collins, Good to Great, p.4</div>
+  </div>
+
+  <div class="card">
+    <div class="clabel ca">$1 invested in Walgreens (1975–2000) vs.</div>
+    <table>
+      <tr><th>Company</th><th>Walgreens won by</th></tr>
+      <tr><td>Intel</td><td><span class="big">~2×</span></td></tr>
+      <tr><td>General Electric</td><td><span class="big">~5×</span></td></tr>
+      <tr><td>Coca-Cola</td><td><span class="big">~8×</span></td></tr>
+      <tr><td>General market</td><td><span class="big">&gt;15×</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="clabel ca">Collins' own question</div>
+    <p><em>"How on earth did a company with such a long history of being nothing special transform itself into an enterprise that outperformed some of the best-led organizations in the world?"</em></p>
+  </div>
+</div>
+
+
+<!-- ══════════════ PHASE 5 — PROMPT ══════════════ -->
+<div class="phase" id="ph5">
+  <div class="ptag out">OUTPUT · 0:47–0:48</div>
+  <div class="ptitle">The Debate Prompt</div>
+  <div class="pdur">⏱ 1 min — Read aloud, then display for students</div>
+
+  <div class="card hl">
+    <div class="clabel ca">Display to students</div>
+    <p>Collins shows that Walgreens — a pharmacy chain that was <strong>completely average for 40 years</strong> — suddenly transformed and beat Intel, GE, and Coca-Cola over the next 25 years.</p>
+    <br>
+    <p>Collins then asks: why did Walgreens make the leap while <strong>Eckerd</strong> — same industry, same opportunities — did not?</p>
+    <br>
+    <p><strong>The debate:</strong> Do you believe a company — or a person — can truly transform after decades of being average? Or is there a point where being average too long becomes permanent?</p>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Second question</div>
+    <p><em>"Collins says you can't just be lucky for 15 years. Do you agree — or can sustained luck exist?"</em></p>
+  </div>
+</div>
+
+
+<!-- ══════════════ PHASE 6 — CHAT ══════════════ -->
+<div class="phase" id="ph6">
+  <div class="ptag out">OUTPUT · 0:48–0:49</div>
+  <div class="ptitle">Chat Pulse</div>
+  <div class="pdur">⏱ 1 min — Activate everyone before calling names</div>
+
+  <div class="card gc">
+    <div class="clabel cg">💬 Everyone types at once</div>
+    <p><em>"Type <strong>YES</strong> or <strong>NO</strong> — can a person or company truly transform after being average for a long time? Go!"</em></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">After reading results</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Read the split aloud: <em>"I see mostly YES... let's test that."</em></p></div>
+      <div class="step"><div class="sn">2</div><p>Call one YES: <em>"[Name] — what makes you say yes?"</em></p></div>
+      <div class="step"><div class="sn">3</div><p>Call one NO: <em>"[Name] — you said no. Why not?"</em></p></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ PHASE 7 — DEBATE ══════════════ -->
+<div class="phase" id="ph7">
+  <div class="ptag out">OUTPUT · 0:49–1:25</div>
+  <div class="ptitle">Split Debate</div>
+  <div class="pdur">⏱ 36 min — Side A vs Side B</div>
+
+  <div class="sides">
+    <div class="card tc">
+      <div class="clabel ct">Side A</div>
+      <p><em>"Transformation is always possible — Walgreens proves that discipline can change everything."</em></p>
+    </div>
+    <div class="card rc">
+      <div class="clabel cr">Side B</div>
+      <p><em>"40 years of average creates a culture and identity that doesn't just flip overnight."</em></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">How to run it</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p><strong>Assign</strong> sides — don't ask, assign. Split roster down the middle.</p></div>
+      <div class="step"><div class="sn">2</div><p>Side A makes case: <strong>2 min.</strong> Call specific names.</p></div>
+      <div class="step"><div class="sn">3</div><p>Side B challenges: <strong>2 min.</strong> Direct response to Side A.</p></div>
+      <div class="step"><div class="sn">4</div><p>Open floor: remaining time. Chain method — always pass to a new name after each speaker.</p></div>
+    </div>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Drop this if debate gets too comfortable</div>
+    <p><em>"Walgreens expanded in a specific neighborhood format right before American suburbs exploded. Was that discipline — or was that timing? Is there actually a difference?"</em></p>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">The Eckerd question — use mid-debate</div>
+    <p><em>"Collins gives us Walgreens AND Eckerd — same industry, same moment, same resources. One transformed. One didn't. What is YOUR theory? What was the real difference?"</em></p>
+  </div>
+</div>
+
+
+<!-- ══════════════ PHASE 8 — CLOSE ══════════════ -->
+<div class="phase" id="ph8">
+  <div class="ptag out">OUTPUT · 1:25–1:30</div>
+  <div class="ptitle">Closing Round</div>
+  <div class="pdur">⏱ 5 min — Every single student speaks once</div>
+
+  <div class="card hl">
+    <div class="clabel ca">The sentence — display this for students</div>
+    <div class="closing-big">
+      "My personal Walgreens moment — the thing I've been <span>flat-lining</span> on but could transform — is ___"
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">What "flat-lining" means — explain if needed</div>
+    <p>Like Walgreens before 1975 — not failing, but not growing either. Staying at the same level for too long. <strong>Every student has one of these.</strong></p>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Example answers — show students what you mean</div>
+    <div class="example-say">"My flat-line is my English speaking — I've been at the same level for 2 years and I know I haven't pushed."</div>
+    <div class="example-say">"Mine is my side business. I've been meaning to start it for 3 years but keep putting it off."</div>
+    <div class="example-say">"Mine is fitness. I'd been thinking about getting serious for years before anything actually changed."</div>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">How to run it</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><p>Fixed order — alphabetical or screen order. Everyone knows their turn is coming.</p></div>
+      <div class="step"><div class="sn">2</div><p><strong>20 seconds each max.</strong> This is closure, not more debate.</p></div>
+      <div class="step"><div class="sn">3</div><p>Teacher responds with one word: <em>"Strong." / "Honest." / "Exactly." / "Real."</em></p></div>
+      <div class="step"><div class="sn">4</div><p><strong>No correction. No follow-up.</strong> Clean ending.</p></div>
+    </div>
+  </div>
+
+  <div class="card pc">
+    <div class="clabel cp">Notice — grammar comes back here naturally</div>
+    <p>Students will use today's structures without being told to: <em>"I've been putting off..." / "I've been meaning to..." / "I'd been thinking about it for years before..."</em> — the sentence invites it. Don't point this out. Let it happen.</p>
+  </div>
+</div>
+
+
+<!-- ══════════════ PHASE 9 — SOS ══════════════ -->
+<div class="phase" id="ph9">
+  <div class="ptag out">Emergency — Use Any Time</div>
+  <div class="ptitle">SOS Prompts</div>
+  <div class="pdur">Drop one the moment energy drops — don't wait</div>
+
+  <div class="card rc">
+    <div class="clabel cr">🚨 Use immediately</div>
+    <ul class="elist" style="margin-top:4px">
+      <li>"Walgreens beat Intel over 15 years. Did you know that before today? What does that say about what we pay attention to?"</li>
+      <li>"[Name] — be honest. Are you a Walgreens or an Eckerd right now in your life?"</li>
+      <li>"If Collins studied OctoLearn right now — good or great? What would he say?"</li>
+      <li>"If someone studied YOUR life the way Collins studied these companies — what would their surprise finding be?"</li>
+      <li>"[Name] just said ___. [Name] — do you agree or not?"</li>
+      <li>"Type in chat: one word for what 'average' feels like. GO."</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="clabel cd">The single fastest reset</div>
+    <p>Any time silence hits — <strong>don't ask the open room.</strong> Call someone by name directly. Silence only exists when no one knows whose turn it is.</p>
+  </div>
+</div>
+
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="nbtn" id="prevBtn" onclick="go(cur-1)" disabled>← Prev</button>
+  <div class="pctr">
+    <strong id="phN">≡</strong>
+    <span id="phSub">Class Outline</span>
+  </div>
+  <button class="nbtn nx" id="nextBtn" onclick="go(cur+1)">Next →</button>
+</div>
+
+<!-- ══════════════ PHASE 10 — HOW TO ══════════════ -->
+<div class="phase" id="ph10">
+  <div class="ptag ov">Teacher Reference</div>
+  <div class="ptitle">How To Run This Class</div>
+  <div class="pdur">Read before class — keep open during output</div>
+
+  <!-- DEBATE ALGORITHM -->
+  <div class="card hl">
+    <div class="clabel ca">How the Debate Works — Step by Step</div>
+
+    <div class="algo-block">
+      <div class="algo-step">
+        <div class="algo-num">1</div>
+        <div class="algo-body">
+          <div class="algo-title">Assign sides — don't ask</div>
+          <div class="algo-desc">Split your roster down the middle. Top half = Side A. Bottom half = Side B. Students defend their assigned position whether they agree or not. This removes awkwardness and forces real speaking practice.</div>
+        </div>
+      </div>
+
+      <div class="algo-arrow">↓</div>
+
+      <div class="algo-step">
+        <div class="algo-num">2</div>
+        <div class="algo-body">
+          <div class="algo-title">Side A makes their case — 2 min</div>
+          <div class="algo-desc">Call a specific name: <span class="aq">"Bilguun, start us off — Side A."</span> Don't wait for volunteers. If they pause, prompt: <span class="aq">"Do you think transformation is possible?"</span></div>
+        </div>
+      </div>
+
+      <div class="algo-arrow">↓</div>
+
+      <div class="algo-step">
+        <div class="algo-num">3</div>
+        <div class="algo-body">
+          <div class="algo-title">Side B responds directly — 2 min</div>
+          <div class="algo-desc">Side B must react to what Side A actually said — not give a separate argument. Call a name: <span class="aq">"Sarnai — do you agree with what Bilguun just said?"</span></div>
+        </div>
+      </div>
+
+      <div class="algo-arrow">↓</div>
+
+      <div class="algo-step">
+        <div class="algo-num">4</div>
+        <div class="algo-body">
+          <div class="algo-title">Open floor — use the Chain Method</div>
+          <div class="algo-desc">Anyone speaks, any side. You stop being the hub. Students talk to each other. See Chain Method below.</div>
+        </div>
+      </div>
+
+      <div class="algo-arrow">↓</div>
+
+      <div class="algo-step">
+        <div class="algo-num">5</div>
+        <div class="algo-body">
+          <div class="algo-title">If energy drops — drop a trap question</div>
+          <div class="algo-desc"><span class="aq">"Walgreens expanded right before American suburbs exploded. Was that discipline — or was that timing? Is there actually a difference?"</span> — Go to SOS tab for more.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAIN METHOD -->
+  <div class="card">
+    <div class="clabel cd">The Chain Method — What It Is</div>
+    <p style="margin-bottom:14px;">Instead of every student talking to you, students talk to each other. You pass the conversation like a chain — each speaker is connected to the one before.</p>
+
+    <div class="chain-flow">
+      <div class="chain-node teacher-node">Teacher</div>
+      <div class="chain-line">calls on →</div>
+      <div class="chain-node">Bilguun</div>
+      <div class="chain-line">then passes to →</div>
+      <div class="chain-node">Sarnai</div>
+      <div class="chain-line">then passes to →</div>
+      <div class="chain-node">Enkh</div>
+      <div class="chain-line">→ next unheard student</div>
+    </div>
+
+    <div class="chain-rules">
+      <div class="chain-rule">
+        <div class="cr-icon">→</div>
+        <div class="cr-text">After Bilguun speaks: <span class="aq">"Sarnai — do you agree with what Bilguun just said?"</span></div>
+      </div>
+      <div class="chain-rule">
+        <div class="cr-icon">→</div>
+        <div class="cr-text">After Sarnai: <span class="aq">"Enkh — what's your reaction to that?"</span></div>
+      </div>
+      <div class="chain-rule">
+        <div class="cr-icon">→</div>
+        <div class="cr-text">After a few turns: <span class="aq">"Enkh — who do you want to respond to what you said?"</span> — now students pick each other</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card gc">
+    <div class="clabel cg">Chain Method — The One Rule</div>
+    <p>Never go back to the same student twice until <strong>every student has spoken once.</strong> Track who has spoken — call the quiet ones by name before the debate ends.</p>
+  </div>
+
+  <!-- TEACHER RULES -->
+  <div class="card">
+    <div class="clabel cd">Teacher Rules During Output</div>
+    <div class="rules-list">
+      <div class="rule-row">
+        <div class="rule-icon no">✗</div>
+        <div class="rule-text"><strong>Never correct mid-speech.</strong> Correcting kills fluency and raises anxiety. Let errors go during output.</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-icon yes">✓</div>
+        <div class="rule-text"><strong>Mirror instead of fix.</strong> If a student says something incorrectly, repeat their idea back with the correct form naturally in your response.</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-icon no">✗</div>
+        <div class="rule-text"><strong>Never ask the open room.</strong> "Does anyone want to share?" = silence. Always call a name.</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-icon yes">✓</div>
+        <div class="rule-text"><strong>React to content, not language.</strong> "Interesting — so you're saying luck and discipline can look identical from the outside?" Students feel heard → filter drops → more output.</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-icon no">✗</div>
+        <div class="rule-text"><strong>Never let one student dominate.</strong> After 60 seconds: "Strong point — [new name], what do you think?"</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-icon yes">✓</div>
+        <div class="rule-text"><strong>Plant grammar structures in your own speech.</strong> Say "I've been meaning to ask..." or "I'd been thinking about this for years before..." — students hear and acquire without being told.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SILENCE ALGORITHM -->
+  <div class="card rc">
+    <div class="clabel cr">If the Room Goes Silent — Decision Tree</div>
+    <div class="tree">
+      <div class="tree-node root">Room goes quiet</div>
+      <div class="tree-branches">
+        <div class="tree-branch">
+          <div class="tree-condition">Nobody has spoken yet</div>
+          <div class="tree-action">Call the most confident student by name. Ask a yes/no question first — easiest entry point.</div>
+        </div>
+        <div class="tree-branch">
+          <div class="tree-condition">Same 2–3 people talking</div>
+          <div class="tree-action">Stop the chain. Call a quiet student directly: <span class="aq">"[Name] — we haven't heard from you. Do you agree?"</span></div>
+        </div>
+        <div class="tree-branch">
+          <div class="tree-condition">General energy drop</div>
+          <div class="tree-action">Chat pulse — throw a quick YES/NO into the chat. Reactivates the whole room instantly. Then call someone who typed.</div>
+        </div>
+        <div class="tree-branch">
+          <div class="tree-condition">Topic exhausted</div>
+          <div class="tree-action">Drop a trap question from the SOS tab. The Walgreens/timing question always works.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  /* ALGO STEPS */
+  .algo-block { margin-top:14px; }
+  .algo-step { display:flex; gap:12px; align-items:flex-start; }
+  .algo-num { width:30px; height:30px; border-radius:50%; background:var(--amber); color:var(--navy); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; }
+  .algo-body { flex:1; padding-bottom:4px; }
+  .algo-title { font-size:14px; font-weight:600; margin-bottom:4px; color:var(--text); }
+  .algo-desc { font-size:13px; line-height:1.65; color:var(--dim); font-weight:300; }
+  .algo-arrow { font-size:18px; color:var(--border); text-align:center; padding:6px 0 6px 14px; }
+  .aq { color:var(--amber); font-style:italic; }
+
+  /* CHAIN FLOW */
+  .chain-flow { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:14px 0; }
+  .chain-node { background:var(--navy); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:13px; font-weight:500; white-space:nowrap; }
+  .chain-node.teacher-node { background:var(--amber); color:var(--navy); border-color:var(--amber); font-weight:700; }
+  .chain-line { font-size:12px; color:var(--dim); white-space:nowrap; }
+
+  .chain-rules { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+  .chain-rule { display:flex; gap:10px; align-items:flex-start; }
+  .cr-icon { color:var(--amber); font-weight:700; font-size:14px; flex-shrink:0; margin-top:1px; }
+  .cr-text { font-size:13px; line-height:1.65; color:var(--dim); font-weight:300; }
+
+  /* TEACHER RULES */
+  .rules-list { display:flex; flex-direction:column; gap:12px; margin-top:4px; }
+  .rule-row { display:flex; gap:12px; align-items:flex-start; }
+  .rule-icon { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; margin-top:1px; }
+  .rule-icon.yes { background:rgba(61,186,120,.2); color:var(--green); }
+  .rule-icon.no  { background:rgba(232,92,58,.2);  color:var(--red); }
+  .rule-text { font-size:13px; line-height:1.65; font-weight:300; }
+  .rule-text strong { color:var(--text); font-weight:600; }
+
+  /* DECISION TREE */
+  .tree { margin-top:10px; }
+  .tree-node.root { background:var(--red); color:#fff; border-radius:10px; padding:10px 14px; text-align:center; font-size:14px; font-weight:600; margin-bottom:12px; }
+  .tree-branches { display:flex; flex-direction:column; gap:8px; }
+  .tree-branch { background:var(--navy); border:1px solid rgba(232,92,58,.3); border-radius:10px; padding:12px 14px; }
+  .tree-condition { font-size:12px; font-weight:600; color:var(--red); letter-spacing:.04em; margin-bottom:5px; text-transform:uppercase; }
+  .tree-action { font-size:13px; line-height:1.6; color:var(--dim); font-weight:300; }
+</style>
+
+<script>
+var cur=0, total=11;
+var currentMins=95, secs=95*60, running=false, iv=null;
+
+var labels=[
+  ['≡','Class Outline'],
+  ['G','Grammar · Input'],['R','Reading · Input'],
+  ['0','Hook · Output'],['1','Data · Output'],['2','Prompt · Output'],
+  ['3','Chat · Output'],['4','Debate · Output'],['5','Close · Output'],
+  ['!','SOS'],
+  ['?','How To Run This Class']
+];
+
+function go(n){
+  if(n<0||n>=total)return;
+  document.getElementById('ph'+cur).classList.remove('on');
+  document.getElementById('t'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('ph'+cur).classList.add('on');
+  var tab=document.getElementById('t'+cur);
+  tab.classList.add('active');
+  tab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  document.getElementById('prevBtn').disabled=(cur===0);
+  document.getElementById('nextBtn').disabled=(cur===total-1);
+  document.getElementById('phN').textContent=labels[cur][0];
+  document.getElementById('phSub').textContent=labels[cur][1];
+  document.getElementById('pb').style.width=(cur/(total-1)*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function render(){
+  var m=Math.floor(secs/60),s=secs%60;
+  document.getElementById('td').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  document.getElementById('td').className='tnum'+(secs<=10?' warn':'');
+}
+function tGo(){
+  if(running)return; running=true;
+  iv=setInterval(function(){
+    if(secs>0){ secs--; render(); }
+    else{ clearInterval(iv); running=false; alarm(); }
+  },1000);
+}
+function tPause(){ clearInterval(iv); running=false; }
+function tReset(){ tPause(); secs=currentMins*60; render(); }
+function setTimer(m){
+  tPause(); currentMins=m; secs=m*60; render();
+  document.getElementById('p95').className='tbtn preset'+(m===95?' sel':'');
+  document.getElementById('p45').className='tbtn preset'+(m===45?' sel':'');
+  document.getElementById('p40').className='tbtn preset'+(m===40?' sel':'');
+  document.getElementById('p2').className ='tbtn preset'+(m===2?' sel':'');
+}
+
+function alarm(){
+  /* flash the timer */
+  var el=document.getElementById('td');
+  var flashes=0;
+  var fl=setInterval(function(){
+    el.style.opacity=(flashes%2===0)?'0.1':'1';
+    flashes++;
+    if(flashes>9){ clearInterval(fl); el.style.opacity='1'; }
+  },200);
+
+  /* beep using Web Audio API */
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function beep(freq,start,dur){
+      var o=ctx.createOscillator();
+      var g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=freq;
+      o.type='sine';
+      g.gain.setValueAtTime(0,ctx.currentTime+start);
+      g.gain.linearRampToValueAtTime(0.4,ctx.currentTime+start+0.01);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+start+dur);
+      o.start(ctx.currentTime+start);
+      o.stop(ctx.currentTime+start+dur+0.05);
+    }
+    beep(880,0.0,0.15);
+    beep(880,0.2,0.15);
+    beep(1100,0.4,0.35);
+  }catch(e){}
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good to Great · Flashcards · OctoLearn</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0c0a;--bg2:#181410;--bg3:#221c14;
+  --card-front:#fffdf5;--card-back:#1a2210;
+  --amber:#e09020;--amber2:#c07010;--amber-glow:rgba(224,144,32,0.18);
+  --green:#2e9e50;--rose:#c0282c;--blue:#1860c0;--violet:#7830b8;
+  --ink:#1a1206;--ink-back:#e8f4e0;
+  --muted:#9a8060;--muted-back:#7a9870;
+  --line:rgba(224,144,32,0.18);
+  --b1:#2060c0;--b2:#7030b0;
+  --d1:#e09020;--d2:#2e9e50;--d3:#c0282c;--d4:#1860c0;--d5:#7830b8;
+  --d6:#20a080;--d7:#e07030;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#f0ece0;min-height:100vh;overflow-x:hidden;}
+
+.hdr{background:rgba(14,12,10,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.brand{display:flex;align-items:center;gap:8px;}
+.logo{width:28px;height:28px;background:var(--amber);border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#111;}
+.brand-name{font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.15em;text-transform:uppercase;}
+.hdr-pills{display:flex;gap:6px;align-items:center;}
+.hpill{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;}
+.hpill.hi{background:var(--amber-glow);border-color:var(--amber);color:var(--amber);}
+
+.week-tabs{display:flex;gap:6px;padding:14px 16px 0;overflow-x:auto;scrollbar-width:none;}
+.week-tabs::-webkit-scrollbar{display:none;}
+.wtab{flex-shrink:0;padding:6px 14px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.06em;cursor:pointer;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);background:rgba(255,255,255,.04);transition:.2s;}
+.wtab:hover{border-color:var(--amber);color:var(--amber);}
+.wtab.active{background:var(--amber);border-color:var(--amber);color:#111;}
+
+.day-tabs{display:flex;gap:6px;padding:10px 16px 12px;overflow-x:auto;scrollbar-width:none;}
+.day-tabs::-webkit-scrollbar{display:none;}
+.dtab{flex-shrink:0;padding:5px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.06em;cursor:pointer;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35);background:transparent;transition:.2s;}
+.dtab:hover{border-color:var(--amber);color:var(--amber);}
+.dtab.active{border-color:var(--amber);color:var(--amber);background:var(--amber-glow);}
+.dtab.review{border-color:rgba(32,160,128,.3);color:rgba(32,160,128,.7);}
+.dtab.review.active{border-color:var(--d6);color:var(--d6);background:rgba(32,160,128,.12);}
+.dtab.test{border-color:rgba(224,112,48,.3);color:rgba(224,112,48,.7);}
+.dtab.test.active{border-color:var(--d7);color:var(--d7);background:rgba(224,112,48,.12);}
+
+.stage{display:flex;flex-direction:column;align-items:center;padding:14px 16px 100px;}
+
+/* ── FLASHCARD ── */
+.card-wrap{width:100%;max-width:480px;perspective:1200px;cursor:pointer;margin-bottom:14px;}
+.card-inner{width:100%;height:320px;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);}
+.card-inner.flipped{transform:rotateY(180deg);}
+.card-face{position:absolute;top:0;left:0;right:0;bottom:0;border-radius:20px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;padding:22px 20px 18px;overflow:hidden;}
+.front{background:var(--card-front);color:var(--ink);}
+.back{background:var(--card-back);color:var(--ink-back);transform:rotateY(180deg);}
+.f-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.f-badges{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.level-badge{padding:3px 8px;border-radius:5px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
+.lv-B1{background:rgba(32,96,192,.15);color:var(--b1);}
+.lv-B2{background:rgba(112,48,176,.15);color:var(--b2);}
+.day-badge{padding:3px 8px;border-radius:5px;font-size:9px;font-weight:700;color:#fff;}
+.d1c{background:var(--d1);}.d2c{background:var(--d2);}.d3c{background:var(--d3);}.d4c{background:var(--d4);}.d5c{background:var(--d5);}
+.pos-badge{padding:3px 8px;border-radius:5px;font-size:9px;font-weight:700;background:rgba(0,0,0,.08);color:var(--muted);}
+.speak-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(0,0,0,.1);background:transparent;cursor:pointer;display:grid;place-items:center;font-size:13px;flex-shrink:0;transition:.15s;}
+.speak-btn:hover{background:rgba(0,0,0,.06);}
+.speak-btn.speaking{background:rgba(224,144,32,.15);border-color:var(--amber);}
+.f-word{font-family:'Libre Baskerville',serif;font-size:clamp(26px,7vw,40px);font-weight:700;line-height:1.1;margin-bottom:4px;}
+.f-phonetic{font-size:12px;color:var(--muted);margin-bottom:6px;}
+.f-mn{font-size:13px;font-weight:600;color:rgba(26,18,6,.6);margin-bottom:12px;}
+.syn-row{display:flex;flex-wrap:wrap;gap:4px;}
+.syn-chip{padding:2px 8px;border-radius:5px;font-size:10px;background:rgba(0,0,0,.06);color:rgba(26,18,6,.5);border:1px solid rgba(0,0,0,.06);}
+.f-hint{margin-top:auto;font-size:10px;color:rgba(26,18,6,.3);text-align:center;letter-spacing:.06em;}
+.b-def{font-size:14px;line-height:1.6;margin-bottom:12px;}
+.b-section{margin-bottom:8px;}
+.b-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-back);margin-bottom:4px;}
+.b-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.b-chip{padding:2px 8px;border-radius:5px;font-size:10px;}
+.syn-chip-b{background:rgba(46,158,80,.15);color:#6cd98a;border:1px solid rgba(46,158,80,.2);}
+.ant-chip-b{background:rgba(192,40,44,.15);color:#f08080;border:1px solid rgba(192,40,44,.2);}
+.b-ex{font-family:'Libre Baskerville',serif;font-style:italic;font-size:12px;line-height:1.7;color:rgba(232,244,224,.65);margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);}
+.b-ex em{font-style:normal;color:#90d870;font-weight:700;}
+
+.controls{width:100%;max-width:480px;display:flex;flex-direction:column;gap:8px;}
+.btn-row{display:flex;gap:8px;justify-content:center;}
+.action-btn{flex:1;padding:12px 8px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;transition:.15s;max-width:200px;}
+.btn-known{background:rgba(46,158,80,.15);color:#6cd98a;border:1px solid rgba(46,158,80,.25);}
+.btn-known:hover{background:rgba(46,158,80,.25);}
+.btn-again{background:rgba(192,40,44,.15);color:#f08080;border:1px solid rgba(192,40,44,.25);}
+.btn-again:hover{background:rgba(192,40,44,.25);}
+.tool-row{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;}
+.tool-btn{padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.45);font-size:10px;font-weight:600;cursor:pointer;transition:.15s;}
+.tool-btn:hover{border-color:var(--amber);color:var(--amber);}
+.tool-btn.active{background:var(--amber-glow);border-color:var(--amber);color:var(--amber);}
+.progress-bar{width:100%;max-width:480px;margin-bottom:10px;}
+.prog-track{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--amber);transition:width .3s;}
+.prog-text{font-size:10px;color:var(--muted);margin-top:4px;text-align:center;}
+
+/* ── REVIEW ── */
+#reviewPanel{width:100%;max-width:480px;display:none;flex-direction:column;gap:10px;}
+.review-header{background:rgba(32,160,128,.1);border:1px solid rgba(32,160,128,.2);border-radius:14px;padding:16px 18px;}
+.review-title{font-family:'Libre Baskerville',serif;font-size:18px;font-weight:700;color:var(--d6);margin-bottom:4px;}
+.review-sub{font-size:12px;color:var(--muted);}
+.review-grid{display:flex;flex-direction:column;gap:6px;}
+.rv-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:.15s;}
+.rv-card:hover{border-color:rgba(32,160,128,.3);background:rgba(32,160,128,.06);}
+.rv-card.expanded{border-color:rgba(32,160,128,.35);background:rgba(32,160,128,.08);}
+.rv-word{font-family:'Libre Baskerville',serif;font-size:16px;font-weight:700;min-width:110px;flex-shrink:0;}
+.rv-right{flex:1;}
+.rv-mn{font-size:12px;color:var(--amber);font-weight:600;margin-bottom:2px;}
+.rv-def{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;display:none;}
+.rv-ex{font-family:'Libre Baskerville',serif;font-style:italic;font-size:11px;color:rgba(255,255,255,.35);margin-top:6px;display:none;line-height:1.55;}
+.rv-card.expanded .rv-def,.rv-card.expanded .rv-ex{display:block;}
+.rv-badges{display:flex;gap:4px;margin-bottom:4px;}
+.rv-lv{font-size:8px;font-weight:800;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;}
+
+/* ── TEST ── */
+#testPanel{width:100%;max-width:520px;display:none;flex-direction:column;gap:14px;}
+.test-header{background:rgba(224,112,48,.08);border:1px solid rgba(224,112,48,.2);border-radius:14px;padding:16px 18px;}
+.test-title{font-family:'Libre Baskerville',serif;font-size:18px;font-weight:700;color:var(--d7);}
+.test-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.test-score-bar{display:flex;gap:10px;margin-top:10px;}
+.ts-box{flex:1;text-align:center;background:rgba(255,255,255,.05);border-radius:8px;padding:8px;}
+.ts-val{font-size:20px;font-weight:700;color:var(--amber);}
+.ts-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+.test-section{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:18px;}
+.test-sec-title{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.pts-badge{padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;}
+
+/* Part 1: Matching */
+.match-grid{display:flex;gap:10px;}
+.match-col{flex:1;display:flex;flex-direction:column;gap:6px;}
+.match-word{padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);font-size:13px;font-weight:600;cursor:pointer;transition:.15s;text-align:center;}
+.match-word:hover{border-color:var(--amber);background:var(--amber-glow);}
+.match-word.selected{border-color:var(--amber);background:var(--amber-glow);color:var(--amber);}
+.match-word.matched-ok{border-color:var(--green);background:rgba(46,158,80,.15);color:#6cd98a;cursor:default;}
+.match-word.matched-err{border-color:var(--rose);background:rgba(192,40,44,.15);color:#f08080;}
+.match-def{padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.07);font-size:11px;color:rgba(255,255,255,.65);cursor:pointer;transition:.15s;line-height:1.45;}
+.match-def:hover{border-color:var(--amber);background:var(--amber-glow);}
+.match-def.selected{border-color:var(--amber);background:var(--amber-glow);}
+.match-def.matched-ok{border-color:var(--green);background:rgba(46,158,80,.15);cursor:default;}
+.match-def.matched-err{border-color:var(--rose);background:rgba(192,40,44,.15);}
+
+/* Part 2: Fill blank */
+.fill-item{margin-bottom:14px;}
+.fill-q{font-size:13px;line-height:1.7;color:rgba(255,255,255,.75);margin-bottom:8px;}
+.fill-q strong{color:var(--amber);}
+.fill-input{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 14px;color:#f0ece0;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:.15s;}
+.fill-input:focus{border-color:var(--amber);}
+.fill-input.ok{border-color:var(--green);background:rgba(46,158,80,.1);}
+.fill-input.err{border-color:var(--rose);background:rgba(192,40,44,.1);}
+.fill-feedback{font-size:11px;margin-top:4px;}
+.fill-feedback.ok{color:#6cd98a;}
+.fill-feedback.err{color:#f08080;}
+
+/* Part 3: Sentence Writing */
+.write-item{margin-bottom:14px;}
+.write-prompt{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.write-word{font-family:'Libre Baskerville',serif;font-size:16px;font-weight:700;color:var(--amber);}
+.write-def{font-size:11px;color:var(--muted);}
+.write-input{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.09);border-radius:9px;padding:10px 14px;color:#f0ece0;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;transition:.15s;min-height:54px;resize:vertical;}
+.write-input:focus{border-color:var(--amber);}
+.write-check{margin-top:6px;display:none;}
+.write-check.show{display:block;}
+.wc-ok{font-size:11px;color:#6cd98a;}
+.wc-tip{font-size:11px;color:var(--muted);line-height:1.5;}
+
+.test-btn-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
+.test-btn{padding:11px 22px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;transition:.15s;}
+.test-btn.primary{background:var(--amber);color:#111;}
+.test-btn.primary:hover{background:var(--amber2);}
+.test-btn.secondary{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.1);}
+.test-btn.secondary:hover{background:rgba(255,255,255,.12);}
+
+/* done/stats */
+.done-screen{display:none;flex-direction:column;align-items:center;text-align:center;padding:40px 20px;gap:14px;}
+.done-screen.show{display:flex;}
+.done-emoji{font-size:52px;}
+.done-title{font-family:'Libre Baskerville',serif;font-size:24px;font-weight:700;}
+.done-sub{font-size:13px;color:var(--muted);}
+.done-stats{display:flex;gap:18px;margin:6px 0;}
+.done-stat-val{font-size:26px;font-weight:700;}
+.done-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+.done-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.rbtn{padding:10px 20px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:rgba(255,255,255,.8);font-size:12px;font-weight:600;cursor:pointer;transition:.15s;}
+.rbtn:hover{background:rgba(255,255,255,.1);}
+.rbtn.gold{background:var(--amber);border-color:var(--amber);color:#111;}
+
+.stats-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(14,12,10,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:10px 20px;display:flex;justify-content:center;gap:24px;z-index:100;}
+.stat-item{text-align:center;}
+.stat-val{font-size:18px;font-weight:700;}
+.stat-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:1px;}
+.sv-k{color:#6cd98a;}.sv-t{color:rgba(255,255,255,.6);}.sv-a{color:#f08080;}
+.sv-s{color:var(--amber);}
+
+@media(max-width:480px){
+  .match-grid{flex-direction:column;}
+  .match-col{flex-direction:row;flex-wrap:wrap;}
+  .match-word,.match-def{flex:1;min-width:120px;}
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="brand">
+    <div class="logo">O</div>
+    <div class="brand-name">OctoLearn</div>
+  </div>
+  <div class="hdr-pills">
+    <div class="hpill hi">Good to Great</div>
+    <div class="hpill" id="modePill">Flashcards</div>
+  </div>
+</header>
+
+<div class="week-tabs" id="weekTabs"></div>
+<div class="day-tabs" id="dayTabs"></div>
+
+<div class="stage" id="stage">
+
+  <!-- DONE (flashcard) -->
+  <div class="done-screen" id="doneScreen">
+    <div class="done-emoji">🎉</div>
+    <div class="done-title">Round Complete!</div>
+    <div class="done-sub" id="doneSub"></div>
+    <div class="done-stats">
+      <div class="done-stat"><div class="done-stat-val sv-k" id="dKnown">0</div><div class="done-stat-label">Known</div></div>
+      <div class="done-stat"><div class="done-stat-val sv-t" id="dTotal">0</div><div class="done-stat-label">Total</div></div>
+      <div class="done-stat"><div class="done-stat-val sv-a" id="dAgain">0</div><div class="done-stat-label">Again</div></div>
+    </div>
+    <div class="done-btns">
+      <button class="rbtn" onclick="restart()">↺ Study Again</button>
+      <button class="rbtn gold" onclick="restartHard()">🔁 Hard Words Only</button>
+    </div>
+  </div>
+
+  <!-- FLASHCARD MAIN -->
+  <div id="mainStage" style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px;">
+    <div class="progress-bar">
+      <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-text" id="progText">0 / 0</div>
+    </div>
+    <div class="card-wrap" id="cardWrap" onclick="flipCard()">
+      <div class="card-inner" id="cardInner">
+        <div class="card-face front">
+          <div class="f-top">
+            <div class="f-badges" id="fBadges"></div>
+
+          </div>
+          <div class="f-word" id="fWord"></div>
+          <div class="f-phonetic" id="fPhon"></div>
+          <div class="syn-row" id="fSyn"></div>
+          <div class="f-hint">TAP TO FLIP</div>
+        </div>
+        <div class="card-face back">
+          <div class="b-def" id="bDef"></div>
+          <div class="b-section"><div class="b-label">Synonyms</div><div class="b-chips" id="bSyn"></div></div>
+          <div class="b-section"><div class="b-label">Antonyms</div><div class="b-chips" id="bAnt"></div></div>
+          <div class="b-ex" id="bEx"></div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="btn-row">
+        <button class="action-btn btn-again" onclick="markAgain()">✗ Study Again</button>
+        <button class="action-btn btn-known" onclick="markKnown()">✓ I Know This</button>
+      </div>
+      <div class="tool-row">
+        <button class="tool-btn" onclick="navCard(-1)">← Prev</button>
+        <button class="tool-btn" onclick="shuffleCards()">🔀 Shuffle</button>
+        <button class="tool-btn" id="hardBtn" onclick="toggleHard()">⭐ Hard Only</button>
+<button class="tool-btn" onclick="navCard(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEW PANEL -->
+  <div id="reviewPanel">
+    <div class="review-header">
+      <div class="review-title">📖 Day 6 — Review</div>
+      <div class="review-sub" id="reviewSub">Tap any card to expand definition &amp; example</div>
+    </div>
+    <div class="review-grid" id="reviewGrid"></div>
+    <div style="text-align:center;padding:10px 0;">
+      <button class="rbtn gold" onclick="setDay(7)">Go to Weekly Test →</button>
+    </div>
+  </div>
+
+  <!-- TEST PANEL -->
+  <div id="testPanel">
+    <div class="test-header">
+      <div class="test-title">📝 Day 7 — Weekly Test</div>
+      <div class="test-sub" id="testWeekLabel">Week — Chapter</div>
+      <div class="test-score-bar">
+        <div class="ts-box"><div class="ts-val" id="scoreP1">—</div><div class="ts-lbl">Part 1 /20</div></div>
+        <div class="ts-box"><div class="ts-val" id="scoreP2">—</div><div class="ts-lbl">Part 2 /20</div></div>
+        <div class="ts-box"><div class="ts-val" id="scoreP3">—</div><div class="ts-lbl">Part 3 /20</div></div>
+        <div class="ts-box"><div class="ts-val sv-s" id="scoreTotal">—</div><div class="ts-lbl">Total /60</div></div>
+      </div>
+    </div>
+
+    <!-- Part 1 -->
+    <div class="test-section">
+      <div class="test-sec-title">
+        <span>Part 1 — Match Words &amp; Meanings</span>
+        <span class="pts-badge" style="background:rgba(224,144,32,.15);color:var(--amber)">20 pts</span>
+      </div>
+      <div class="match-grid">
+        <div class="match-col" id="matchWords"></div>
+        <div class="match-col" id="matchDefs"></div>
+      </div>
+      <div class="test-btn-row" style="margin-top:14px;">
+        <button class="test-btn primary" onclick="checkMatch()">Check Matches</button>
+        <button class="test-btn secondary" onclick="resetMatch()">Reset</button>
+      </div>
+    </div>
+
+    <!-- Part 2 -->
+    <div class="test-section">
+      <div class="test-sec-title">
+        <span>Part 2 — Fill in the Blanks</span>
+        <span class="pts-badge" style="background:rgba(32,96,192,.12);color:#6090e0">20 pts</span>
+      </div>
+      <div id="fillItems"></div>
+      <div class="test-btn-row">
+        <button class="test-btn primary" onclick="checkFill()">Check Answers</button>
+        <button class="test-btn secondary" onclick="resetFill()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Part 3 -->
+    <div class="test-section">
+      <div class="test-sec-title">
+        <span>Part 3 — Write Your Own Sentence</span>
+        <span class="pts-badge" style="background:rgba(46,158,80,.12);color:#6cd98a">20 pts</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px;">Use each word correctly in a sentence. Press Check to get a model example.</div>
+      <div id="writeItems"></div>
+      <div class="test-btn-row">
+        <button class="test-btn primary" onclick="checkWrite()">Check &amp; See Examples</button>
+        <button class="test-btn secondary" onclick="resetWrite()">Clear</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:8px 0 4px;">
+      <button class="rbtn" onclick="setDay(6)">← Back to Review</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-val sv-k" id="sKnown">0</div><div class="stat-label">Known</div></div>
+  <div class="stat-item"><div class="stat-val sv-t" id="sTotal">0</div><div class="stat-label">Total</div></div>
+  <div class="stat-item"><div class="stat-val sv-a" id="sAgain">0</div><div class="stat-label">Again</div></div>
+  <div class="stat-item"><div class="stat-val sv-s" id="sScore" style="display:none">0</div><div class="stat-label" id="sScoreLbl" style="display:none">Score</div></div>
+</div>
+
+<script>
+const ALL_CARDS = [{"w": 1, "d": 1, "lv": "B1", "word": "leader", "pos": "n", "ph": "/ˈliːdər/", "mn": "Удирдагч", "def": "A person who guides others toward a goal.", "syn": ["chief", "head", "director"], "ant": ["follower", "subordinate"], "ex": "Great companies had a quiet, determined leader who cared more about results than fame."}, {"w": 1, "d": 1, "lv": "B1", "word": "company", "pos": "n", "ph": "/ˈkʌmpəni/", "mn": "Компани", "def": "An organization that sells goods or services.", "syn": ["firm", "corporation", "business"], "ant": ["individual", "person"], "ex": "The company transformed from average to extraordinary through disciplined decisions."}, {"w": 1, "d": 1, "lv": "B1", "word": "result", "pos": "n", "ph": "/rɪˈzʌlt/", "mn": "Үр дүн", "def": "The outcome or effect of an action.", "syn": ["outcome", "effect", "consequence"], "ant": ["cause", "reason", "input"], "ex": "The result of their hard work was a company that outperformed all competitors."}, {"w": 1, "d": 1, "lv": "B1", "word": "performance", "pos": "n", "ph": "/pərˈfɔːrməns/", "mn": "Гүйцэтгэл", "def": "How well someone or something does a task.", "syn": ["output", "achievement", "execution"], "ant": ["failure", "underperformance"], "ex": "Their performance improved dramatically once they found the right people for the job."}, {"w": 1, "d": 1, "lv": "B1", "word": "research", "pos": "n", "ph": "/ˈriːsɜːrtʃ/", "mn": "Судалгаа", "def": "Careful study to discover new facts or information.", "syn": ["study", "investigation", "analysis"], "ant": ["guess", "assumption"], "ex": "Collins conducted five years of research to find what separated great companies from good ones."}, {"w": 1, "d": 1, "lv": "B2", "word": "discipline", "pos": "n", "ph": "/ˈdɪsəplɪn/", "mn": "Сахилга бат", "def": "The practice of training oneself to follow rules consistently.", "syn": ["self-control", "rigor", "structure"], "ant": ["chaos", "disorder", "laziness"], "ex": "Every great company showed incredible discipline — they never chased quick wins."}, {"w": 1, "d": 1, "lv": "B2", "word": "momentum", "pos": "n", "ph": "/məˈmentəm/", "mn": "Хурдасгал, давалгаа", "def": "Increasing force or speed that builds over time.", "syn": ["drive", "force", "impetus"], "ant": ["stagnation", "inertia", "halt"], "ex": "The flywheel builds momentum slowly, but once moving, it becomes unstoppable."}, {"w": 1, "d": 1, "lv": "B1", "word": "concept", "pos": "n", "ph": "/ˈkɒnsept/", "mn": "Ойлголт", "def": "An idea or principle that explains something.", "syn": ["idea", "notion", "principle"], "ant": ["reality", "fact", "object"], "ex": "The Hedgehog Concept is the central idea of the book — what you can be best at."}, {"w": 1, "d": 1, "lv": "B1", "word": "comparison", "pos": "n", "ph": "/kəmˈpærɪsən/", "mn": "Харьцуулалт", "def": "The act of examining differences and similarities.", "syn": ["contrast", "analysis", "evaluation"], "ant": ["similarity", "sameness"], "ex": "The comparison between good and great companies revealed surprising patterns."}, {"w": 1, "d": 1, "lv": "B1", "word": "industry", "pos": "n", "ph": "/ˈɪndəstri/", "mn": "Салбар", "def": "A group of businesses producing the same type of goods.", "syn": ["sector", "field", "market"], "ant": ["individual", "person"], "ex": "The study covered companies across many industries, from steel to retail."}, {"w": 1, "d": 1, "lv": "B1", "word": "strategy", "pos": "n", "ph": "/ˈstrætədʒi/", "mn": "Стратеги", "def": "A plan to achieve a long-term goal.", "syn": ["plan", "approach", "method"], "ant": ["improvisation", "chaos", "whim"], "ex": "Great companies didn't just have a good strategy — they had the right strategy at the right time."}, {"w": 1, "d": 1, "lv": "B2", "word": "transformation", "pos": "n", "ph": "/ˌtrænsˈfɔːrmeɪʃən/", "mn": "Өөрчлөлт", "def": "A major change in form, appearance, or character.", "syn": ["change", "shift", "revolution"], "ant": ["stagnation", "stability", "sameness"], "ex": "The transformation from good to great took an average of four years to see real results."}, {"w": 1, "d": 1, "lv": "B1", "word": "culture", "pos": "n", "ph": "/ˈkʌltʃər/", "mn": "Соёл", "def": "The values and behaviors shared by a group or organization.", "syn": ["environment", "ethos", "values"], "ant": ["chaos", "disorder"], "ex": "Great companies built a culture of discipline that freed people to work creatively."}, {"w": 1, "d": 1, "lv": "B1", "word": "data", "pos": "n", "ph": "/ˈdeɪtə/", "mn": "Мэдээлэл", "def": "Facts and statistics collected for analysis.", "syn": ["facts", "evidence", "statistics"], "ant": ["opinion", "guess", "assumption"], "ex": "Collins used data from 1,435 companies to find the 11 that made the leap to greatness."}, {"w": 1, "d": 1, "lv": "B1", "word": "pattern", "pos": "n", "ph": "/ˈpætərn/", "mn": "Загвар, хэв маяг", "def": "A repeated design or sequence of behavior.", "syn": ["trend", "model", "structure"], "ant": ["randomness", "chaos", "exception"], "ex": "One clear pattern emerged: every great company had the right people before the right strategy."}, {"w": 1, "d": 1, "lv": "B1", "word": "factor", "pos": "n", "ph": "/ˈfæktər/", "mn": "Хүчин зүйл", "def": "Something that contributes to a result or situation.", "syn": ["element", "variable", "cause"], "ant": ["result", "effect", "outcome"], "ex": "Luck was not a major factor — great companies created their own advantages."}, {"w": 1, "d": 1, "lv": "B2", "word": "principle", "pos": "n", "ph": "/ˈprɪnsɪpəl/", "mn": "Зарчим", "def": "A fundamental rule or belief that guides behavior.", "syn": ["rule", "value", "standard"], "ant": ["exception", "deviation", "whim"], "ex": "Collins identified six principles that all good-to-great companies shared."}, {"w": 1, "d": 1, "lv": "B1", "word": "success", "pos": "n", "ph": "/səkˈses/", "mn": "Амжилт", "def": "The achievement of a desired goal or result.", "syn": ["achievement", "triumph", "victory"], "ant": ["failure", "defeat", "loss"], "ex": "Long-term success required more than a great product — it needed the right people."}, {"w": 1, "d": 1, "lv": "B1", "word": "evidence", "pos": "n", "ph": "/ˈevɪdəns/", "mn": "Нотолгоо", "def": "Facts that prove something is true.", "syn": ["proof", "data", "facts"], "ant": ["speculation", "assumption", "fiction"], "ex": "The evidence showed that technology alone never created a great company."}, {"w": 1, "d": 1, "lv": "B1", "word": "process", "pos": "n", "ph": "/ˈproʊses/", "mn": "Үйл явц", "def": "A series of steps taken to achieve a result.", "syn": ["procedure", "method", "system"], "ant": ["result", "outcome", "end"], "ex": "The flywheel process showed that greatness comes from consistent, daily effort."}, {"w": 1, "d": 1, "lv": "B1", "word": "decision", "pos": "n", "ph": "/dɪˈsɪʒən/", "mn": "Шийдвэр", "def": "A choice made after thinking carefully.", "syn": ["choice", "determination", "resolution"], "ant": ["indecision", "uncertainty", "doubt"], "ex": "Every important decision started with getting the right people in the right seats."}, {"w": 1, "d": 1, "lv": "B2", "word": "commitment", "pos": "n", "ph": "/kəˈmɪtmənt/", "mn": "Үүрэг хариуцлага", "def": "A promise to do something consistently.", "syn": ["dedication", "loyalty", "promise"], "ant": ["abandonment", "neglect", "unreliability"], "ex": "Great companies showed total commitment to their Hedgehog Concept for years before results appeared."}, {"w": 1, "d": 2, "lv": "B1", "word": "achieve", "pos": "v", "ph": "/əˈtʃiːv/", "mn": "Хүрэх", "def": "To successfully complete a goal through effort.", "syn": ["accomplish", "attain", "reach"], "ant": ["fail", "miss", "lose"], "ex": "Great companies achieved sustained results by focusing on what they could be best at."}, {"w": 1, "d": 2, "lv": "B1", "word": "improve", "pos": "v", "ph": "/ɪmˈpruːv/", "mn": "Сайжруулах", "def": "To make something better.", "syn": ["enhance", "upgrade", "develop"], "ant": ["worsen", "decline", "deteriorate"], "ex": "Rather than jumping to new trends, they worked to improve what already worked."}, {"w": 1, "d": 2, "lv": "B1", "word": "compare", "pos": "v", "ph": "/kəmˈpeər/", "mn": "Харьцуулах", "def": "To examine similarities and differences between things.", "syn": ["contrast", "evaluate", "assess"], "ant": ["ignore", "overlook"], "ex": "Collins compared great companies with similar ones that remained average."}, {"w": 1, "d": 2, "lv": "B1", "word": "transform", "pos": "v", "ph": "/trænsˈfɔːrm/", "mn": "Өөрчлөх", "def": "To change something completely.", "syn": ["convert", "change", "revolutionize"], "ant": ["maintain", "preserve", "keep"], "ex": "The right leader can transform a struggling company into an extraordinary one."}, {"w": 1, "d": 2, "lv": "B1", "word": "identify", "pos": "v", "ph": "/aɪˈdentɪfaɪ/", "mn": "Тодорхойлох", "def": "To recognize and name something correctly.", "syn": ["recognize", "determine", "pinpoint"], "ant": ["miss", "overlook", "ignore"], "ex": "The research team identified eleven companies that made the leap from good to great."}, {"w": 1, "d": 2, "lv": "B1", "word": "focus", "pos": "v", "ph": "/ˈfoʊkəs/", "mn": "Анхаарал төвлөрүүлэх", "def": "To give full attention to one thing.", "syn": ["concentrate", "direct", "target"], "ant": ["distract", "scatter", "wander"], "ex": "Great companies focused on one thing they could be the best in the world at."}, {"w": 1, "d": 2, "lv": "B1", "word": "build", "pos": "v", "ph": "/bɪld/", "mn": "Байгуулах", "def": "To create or develop something over time.", "syn": ["create", "develop", "construct"], "ant": ["destroy", "tear down", "demolish"], "ex": "The flywheel metaphor shows how you build momentum through consistent small efforts."}, {"w": 1, "d": 2, "lv": "B1", "word": "maintain", "pos": "v", "ph": "/meɪnˈteɪn/", "mn": "Хадгалах", "def": "To keep something in its current condition.", "syn": ["sustain", "preserve", "keep"], "ant": ["abandon", "neglect", "drop"], "ex": "Great companies maintained their core values even when under pressure to change."}, {"w": 1, "d": 2, "lv": "B1", "word": "measure", "pos": "v", "ph": "/ˈmeʒər/", "mn": "Хэмжих", "def": "To find the exact size or amount of something.", "syn": ["assess", "evaluate", "gauge"], "ant": ["guess", "estimate", "ignore"], "ex": "Collins measured success over a 15-year period, not just one quarter."}, {"w": 1, "d": 2, "lv": "B2", "word": "confront", "pos": "v", "ph": "/kənˈfrʌnt/", "mn": "Нүүр тулах", "def": "To face a difficult situation directly.", "syn": ["face", "address", "tackle"], "ant": ["avoid", "ignore", "deny"], "ex": "Great leaders would confront brutal facts, even when it was uncomfortable."}, {"w": 1, "d": 2, "lv": "B1", "word": "select", "pos": "v", "ph": "/sɪˈlekt/", "mn": "Сонгох", "def": "To carefully choose the best option.", "syn": ["choose", "pick", "appoint"], "ant": ["reject", "exclude", "drop"], "ex": "The first step was to select the right people before deciding the strategy."}, {"w": 1, "d": 2, "lv": "B2", "word": "accelerate", "pos": "v", "ph": "/əkˈseləreɪt/", "mn": "Хурдасгах", "def": "To increase speed or make something happen faster.", "syn": ["speed up", "boost", "quicken"], "ant": ["slow", "decelerate", "delay"], "ex": "Once the flywheel started turning, results began to accelerate dramatically."}, {"w": 1, "d": 2, "lv": "B1", "word": "lead", "pos": "v", "ph": "/liːd/", "mn": "Удирдах", "def": "To guide a group of people toward a goal.", "syn": ["guide", "direct", "manage"], "ant": ["follow", "obey", "submit"], "ex": "Level 5 leaders lead with humility and fierce determination at the same time."}, {"w": 1, "d": 2, "lv": "B1", "word": "develop", "pos": "v", "ph": "/dɪˈveləp/", "mn": "Хөгжүүлэх", "def": "To grow or make something grow over time.", "syn": ["grow", "expand", "advance"], "ant": ["stagnate", "decline", "shrink"], "ex": "Great companies develop a culture where people can say hard things openly."}, {"w": 1, "d": 2, "lv": "B1", "word": "pursue", "pos": "v", "ph": "/pərˈsuː/", "mn": "Хөөцөлдөх", "def": "To follow or work toward something consistently.", "syn": ["seek", "chase", "follow"], "ant": ["abandon", "give up", "avoid"], "ex": "They did not pursue every opportunity — only those that fit their Hedgehog Concept."}, {"w": 1, "d": 2, "lv": "B1", "word": "sustain", "pos": "v", "ph": "/səˈsteɪn/", "mn": "Тогтвортой байлгах", "def": "To maintain something over a long period.", "syn": ["maintain", "preserve", "continue"], "ant": ["stop", "abandon", "end"], "ex": "The goal was not just great results, but to sustain them for fifteen years or more."}, {"w": 1, "d": 2, "lv": "B2", "word": "eliminate", "pos": "v", "ph": "/ɪˈlɪmɪneɪt/", "mn": "Арилгах", "def": "To remove something completely.", "syn": ["remove", "cut", "delete"], "ant": ["add", "include", "keep"], "ex": "Great leaders had to eliminate activities that did not fit their core focus."}, {"w": 1, "d": 2, "lv": "B1", "word": "apply", "pos": "v", "ph": "/əˈplaɪ/", "mn": "Хэрэглэх", "def": "To use something in a practical situation.", "syn": ["use", "implement", "employ"], "ant": ["ignore", "discard", "avoid"], "ex": "These principles can be applied to any organization, not just business."}, {"w": 1, "d": 2, "lv": "B1", "word": "reveal", "pos": "v", "ph": "/rɪˈviːl/", "mn": "Илэрхийлэх", "def": "To show something that was hidden.", "syn": ["show", "expose", "uncover"], "ant": ["hide", "conceal", "mask"], "ex": "The research revealed that great CEOs often came from inside the company."}, {"w": 1, "d": 2, "lv": "B2", "word": "resist", "pos": "v", "ph": "/rɪˈzɪst/", "mn": "Эсэргүүцэх", "def": "To refuse to accept or be changed by something.", "syn": ["oppose", "fight", "withstand"], "ant": ["accept", "surrender", "yield"], "ex": "Good-to-great companies had the discipline to resist trends that didn't fit their focus."}, {"w": 1, "d": 2, "lv": "B1", "word": "analyze", "pos": "v", "ph": "/ˈænəlaɪz/", "mn": "Шинжлэх", "def": "To examine something carefully to understand it.", "syn": ["examine", "study", "evaluate"], "ant": ["ignore", "overlook", "guess"], "ex": "Collins spent five years analyzing what separated great companies from merely good ones."}, {"w": 1, "d": 2, "lv": "B1", "word": "require", "pos": "v", "ph": "/rɪˈkwaɪər/", "mn": "Шаардах", "def": "To need something as necessary.", "syn": ["need", "demand", "necessitate"], "ant": ["offer", "provide", "give"], "ex": "True transformation requires time, patience, and the right people in the right seats."}, {"w": 1, "d": 3, "lv": "B1", "word": "great", "pos": "adj", "ph": "/ɡreɪt/", "mn": "Гайхамшигтай", "def": "Exceptionally good or significant.", "syn": ["outstanding", "extraordinary", "remarkable"], "ant": ["average", "mediocre", "ordinary"], "ex": "Good is the enemy of great — most people settle for good and never become great."}, {"w": 1, "d": 3, "lv": "B1", "word": "consistent", "pos": "adj", "ph": "/kənˈsɪstənt/", "mn": "Тогтвортой", "def": "Always behaving the same way; not changing.", "syn": ["steady", "reliable", "uniform"], "ant": ["inconsistent", "erratic", "variable"], "ex": "Great companies were consistent in their actions for years before results showed."}, {"w": 1, "d": 3, "lv": "B2", "word": "humble", "pos": "adj", "ph": "/ˈhʌmbəl/", "mn": "Даруу", "def": "Not thinking of yourself as better than others.", "syn": ["modest", "unassuming", "reserved"], "ant": ["arrogant", "proud", "boastful"], "ex": "The most effective leaders were humble — they gave credit to their team, not themselves."}, {"w": 1, "d": 3, "lv": "B1", "word": "ambitious", "pos": "adj", "ph": "/æmˈbɪʃəs/", "mn": "Зорилготой", "def": "Having a strong desire to succeed.", "syn": ["driven", "determined", "motivated"], "ant": ["lazy", "unmotivated", "passive"], "ex": "They were ambitious for the company's results, not for personal fame."}, {"w": 1, "d": 3, "lv": "B2", "word": "relentless", "pos": "adj", "ph": "/rɪˈlentləs/", "mn": "Тууштай", "def": "Continuing without stopping or weakening.", "syn": ["persistent", "tireless", "unstoppable"], "ant": ["lazy", "weak", "inconsistent"], "ex": "Their relentless discipline separated them from companies that chased every trend."}, {"w": 1, "d": 3, "lv": "B1", "word": "effective", "pos": "adj", "ph": "/ɪˈfektɪv/", "mn": "Үр дүнтэй", "def": "Producing the desired result.", "syn": ["efficient", "successful", "productive"], "ant": ["ineffective", "useless", "unproductive"], "ex": "Effective leaders ask what's right for the company, not what's easy for themselves."}, {"w": 1, "d": 3, "lv": "B1", "word": "significant", "pos": "adj", "ph": "/sɪɡˈnɪfɪkənt/", "mn": "Чухал", "def": "Important and meaningful.", "syn": ["important", "major", "notable"], "ant": ["insignificant", "minor", "trivial"], "ex": "The most significant finding was that leadership style mattered more than strategy."}, {"w": 1, "d": 3, "lv": "B1", "word": "specific", "pos": "adj", "ph": "/spɪˈsɪfɪk/", "mn": "Тодорхой", "def": "Clearly defined or identified.", "syn": ["precise", "exact", "clear"], "ant": ["vague", "general", "unclear"], "ex": "Collins gave specific examples from real companies to prove each principle."}, {"w": 1, "d": 3, "lv": "B2", "word": "decisive", "pos": "adj", "ph": "/dɪˈsaɪsɪv/", "mn": "Шийдэмгий", "def": "Making decisions quickly and clearly.", "syn": ["determined", "firm", "resolute"], "ant": ["indecisive", "hesitant", "uncertain"], "ex": "Level 5 leaders were decisive — they acted on facts, not fear."}, {"w": 1, "d": 3, "lv": "B1", "word": "long-term", "pos": "adj", "ph": "/ˌlɔːŋˈtɜːrm/", "mn": "Урт хугацааны", "def": "Relating to a long period of time.", "syn": ["extended", "sustained", "enduring"], "ant": ["short-term", "immediate", "temporary"], "ex": "Good-to-great companies focused on long-term results, not quarterly earnings."}, {"w": 1, "d": 3, "lv": "B2", "word": "rigorous", "pos": "adj", "ph": "/ˈrɪɡərəs/", "mn": "Хатуу чанд", "def": "Extremely thorough and careful.", "syn": ["strict", "thorough", "demanding"], "ant": ["lax", "careless", "sloppy"], "ex": "Their rigorous analysis took five years and covered 1,435 companies."}, {"w": 1, "d": 3, "lv": "B1", "word": "talented", "pos": "adj", "ph": "/ˈtæləntɪd/", "mn": "Авьяастай", "def": "Having a natural ability to do something well.", "syn": ["skilled", "gifted", "capable"], "ant": ["unskilled", "average", "mediocre"], "ex": "Having talented people in the wrong roles was just as bad as having no talent at all."}, {"w": 1, "d": 3, "lv": "B1", "word": "sustainable", "pos": "adj", "ph": "/səˈsteɪnəbəl/", "mn": "Тогтвортой", "def": "Able to continue over a long time.", "syn": ["lasting", "durable", "ongoing"], "ant": ["temporary", "unsustainable", "short-lived"], "ex": "The goal was to build a sustainable organization that would outlast any one leader."}, {"w": 1, "d": 3, "lv": "B2", "word": "extraordinary", "pos": "adj", "ph": "/ɪkˈstrɔːrdɪneri/", "mn": "Онцгой", "def": "Very unusual or remarkable.", "syn": ["exceptional", "remarkable", "outstanding"], "ant": ["ordinary", "average", "normal"], "ex": "Ordinary companies can become extraordinary with the right people and relentless focus."}, {"w": 1, "d": 3, "lv": "B1", "word": "competitive", "pos": "adj", "ph": "/kəmˈpetɪtɪv/", "mn": "Өрсөлдөөнтэй", "def": "Able to compete successfully against others.", "syn": ["strong", "capable", "challenging"], "ant": ["weak", "ineffective", "passive"], "ex": "A competitive advantage is not enough — you also need the discipline to maintain it."}, {"w": 1, "d": 3, "lv": "B1", "word": "passionate", "pos": "adj", "ph": "/ˈpæʃənɪt/", "mn": "Дуртай, сэтгэл хүрдэг", "def": "Having strong feelings of enthusiasm or love for something.", "syn": ["enthusiastic", "devoted", "eager"], "ant": ["indifferent", "apathetic", "bored"], "ex": "Great companies only pursued things their people were truly passionate about."}, {"w": 1, "d": 3, "lv": "B1", "word": "honest", "pos": "adj", "ph": "/ˈɒnɪst/", "mn": "Шударга", "def": "Truthful and fair in all situations.", "syn": ["truthful", "sincere", "transparent"], "ant": ["dishonest", "deceptive", "misleading"], "ex": "An honest culture means people can say what they really think without fear."}, {"w": 1, "d": 3, "lv": "B2", "word": "innovative", "pos": "adj", "ph": "/ˈɪnəveɪtɪv/", "mn": "Шинэлэг", "def": "Using new ideas or methods.", "syn": ["creative", "original", "pioneering"], "ant": ["traditional", "conservative", "old-fashioned"], "ex": "Good-to-great companies were not necessarily innovative — they were focused and disciplined."}, {"w": 1, "d": 3, "lv": "B1", "word": "reliable", "pos": "adj", "ph": "/rɪˈlaɪəbəl/", "mn": "Найдвартай", "def": "Consistently good and able to be trusted.", "syn": ["dependable", "trustworthy", "stable"], "ant": ["unreliable", "unpredictable", "erratic"], "ex": "Great companies built reliable systems so results did not depend on one person."}, {"w": 1, "d": 3, "lv": "B2", "word": "distinctive", "pos": "adj", "ph": "/dɪˈstɪŋktɪv/", "mn": "Онцлогтой", "def": "Clearly different from others in a memorable way.", "syn": ["unique", "characteristic", "recognizable"], "ant": ["common", "generic", "ordinary"], "ex": "Their Hedgehog Concept gave each great company a distinctive identity."}, {"w": 1, "d": 3, "lv": "B1", "word": "motivated", "pos": "adj", "ph": "/ˈmoʊtɪveɪtɪd/", "mn": "Урам зоригтой", "def": "Having a strong reason to do something.", "syn": ["driven", "inspired", "enthusiastic"], "ant": ["unmotivated", "passive", "disinterested"], "ex": "The right culture made people feel motivated without needing to be managed closely."}, {"w": 1, "d": 3, "lv": "B2", "word": "fearless", "pos": "adj", "ph": "/ˈfɪərləs/", "mn": "Эрэлхэг", "def": "Without fear; brave in facing challenges.", "syn": ["brave", "bold", "courageous"], "ant": ["fearful", "timid", "cowardly"], "ex": "Great leaders are fearless about confronting bad news — they face it head-on."}, {"w": 1, "d": 4, "lv": "B1", "word": "organization", "pos": "n", "ph": "/ˌɔːrɡənɪˈzeɪʃən/", "mn": "Байгууллага", "def": "A group of people working together toward a shared goal.", "syn": ["institution", "company", "enterprise"], "ant": ["chaos", "disorder", "individual"], "ex": "Great organizations put the right people in place before setting direction."}, {"w": 1, "d": 4, "lv": "B1", "word": "management", "pos": "n", "ph": "/ˈmænɪdʒmənt/", "mn": "Удирдлага", "def": "The process of controlling and organizing an organization.", "syn": ["administration", "leadership", "direction"], "ant": ["disorder", "chaos", "neglect"], "ex": "Good management is not about micromanaging — it is about getting the right people."}, {"w": 1, "d": 4, "lv": "B1", "word": "employee", "pos": "n", "ph": "/ɪmˈplɔɪiː/", "mn": "Ажилтан", "def": "A person who works for an organization.", "syn": ["worker", "staff", "team member"], "ant": ["employer", "boss", "manager"], "ex": "Great companies treated every employee as someone who could grow and contribute."}, {"w": 1, "d": 4, "lv": "B1", "word": "team", "pos": "n", "ph": "/tiːm/", "mn": "Баг", "def": "A group of people working together on the same task.", "syn": ["group", "crew", "unit"], "ant": ["individual", "solo", "competitor"], "ex": "The best CEOs built their team before creating the strategic plan."}, {"w": 1, "d": 4, "lv": "B1", "word": "goal", "pos": "n", "ph": "/ɡoʊl/", "mn": "Зорилго", "def": "Something you work to achieve over time.", "syn": ["objective", "target", "aim"], "ant": ["obstacle", "distraction", "aimlessness"], "ex": "Every great company had a clear, ambitious goal called a Big Hairy Audacious Goal (BHAG)."}, {"w": 1, "d": 4, "lv": "B1", "word": "profit", "pos": "n", "ph": "/ˈprɒfɪt/", "mn": "Ашиг", "def": "The money a business earns after paying all expenses.", "syn": ["earnings", "income", "gain"], "ant": ["loss", "debt", "deficit"], "ex": "Great companies used profit as one measure of success, not the only one."}, {"w": 1, "d": 4, "lv": "B1", "word": "growth", "pos": "n", "ph": "/ɡroʊθ/", "mn": "Өсөлт", "def": "An increase in size, amount, or importance.", "syn": ["expansion", "development", "increase"], "ant": ["decline", "shrinkage", "stagnation"], "ex": "Sustainable growth came from disciplined focus, not from chasing every opportunity."}, {"w": 1, "d": 4, "lv": "B2", "word": "execution", "pos": "n", "ph": "/ˌeksɪˈkjuːʃən/", "mn": "Гүйцэтгэл", "def": "The act of carrying out a plan effectively.", "syn": ["implementation", "performance", "delivery"], "ant": ["planning", "theory", "intention"], "ex": "A brilliant strategy means nothing without excellent execution."}, {"w": 1, "d": 4, "lv": "B1", "word": "budget", "pos": "n", "ph": "/ˈbʌdʒɪt/", "mn": "Төсөв", "def": "A plan showing how money will be spent.", "syn": ["plan", "allocation", "finance"], "ant": ["waste", "overspending"], "ex": "Great companies allocated budget to what aligned with their Hedgehog Concept."}, {"w": 1, "d": 4, "lv": "B2", "word": "innovation", "pos": "n", "ph": "/ˌɪnəˈveɪʃən/", "mn": "Шинэлэг байдал", "def": "The process of creating something new or improved.", "syn": ["creativity", "invention", "novelty"], "ant": ["tradition", "imitation", "stagnation"], "ex": "Innovation without focus is dangerous — it can scatter a company's energy."}, {"w": 1, "d": 4, "lv": "B1", "word": "structure", "pos": "n", "ph": "/ˈstrʌktʃər/", "mn": "Бүтэц", "def": "The way something is organized or arranged.", "syn": ["framework", "system", "organization"], "ant": ["chaos", "disorder", "mess"], "ex": "Great companies had a clear structure that matched their strategy."}, {"w": 1, "d": 4, "lv": "B1", "word": "investment", "pos": "n", "ph": "/ɪnˈvestmənt/", "mn": "Хөрөнгө оруулалт", "def": "Money put into something to gain future benefits.", "syn": ["funding", "capital", "spending"], "ant": ["withdrawal", "spending", "loss"], "ex": "Investing in the right people gave a higher return than investing in technology."}, {"w": 1, "d": 4, "lv": "B2", "word": "benchmark", "pos": "n", "ph": "/ˈbentʃmɑːrk/", "mn": "Хэмжүүр", "def": "A standard used to compare performance.", "syn": ["standard", "reference", "measure"], "ant": ["guess", "approximation"], "ex": "The stock market return was used as a benchmark to judge company performance."}, {"w": 1, "d": 4, "lv": "B1", "word": "productivity", "pos": "n", "ph": "/ˌproʊdʌkˈtɪvɪti/", "mn": "Бүтээмж", "def": "The rate at which work is done efficiently.", "syn": ["efficiency", "output", "performance"], "ant": ["inefficiency", "waste", "laziness"], "ex": "High productivity came from focused people doing the right work — not working longer hours."}, {"w": 1, "d": 4, "lv": "B1", "word": "talent", "pos": "n", "ph": "/ˈtælənt/", "mn": "Авьяас чадвар", "def": "A natural ability to do something well.", "syn": ["skill", "ability", "gift"], "ant": ["weakness", "inability", "mediocrity"], "ex": "Talent alone does not make a great company — it must be in the right role."}, {"w": 1, "d": 4, "lv": "B2", "word": "accountability", "pos": "n", "ph": "/əˌkaʊntəˈbɪlɪti/", "mn": "Хариуцлага", "def": "The responsibility to explain your actions and results.", "syn": ["responsibility", "answerability", "ownership"], "ant": ["irresponsibility", "blame-shifting", "avoidance"], "ex": "Great companies built a culture of accountability — people owned their results."}, {"w": 1, "d": 4, "lv": "B1", "word": "system", "pos": "n", "ph": "/ˈsɪstəm/", "mn": "Систем", "def": "An organized set of procedures or methods.", "syn": ["process", "method", "framework"], "ant": ["chaos", "randomness", "disorder"], "ex": "A great system lets ordinary people produce extraordinary results."}, {"w": 1, "d": 4, "lv": "B1", "word": "role", "pos": "n", "ph": "/roʊl/", "mn": "Үүрэг, байр суурь", "def": "A person's function or position in a group.", "syn": ["position", "function", "job"], "ant": ["irrelevance", "none"], "ex": "First, get the right people. Then, put them in the right role."}, {"w": 1, "d": 4, "lv": "B2", "word": "competency", "pos": "n", "ph": "/ˈkɒmpɪtənsi/", "mn": "Чадамж", "def": "The ability to do something well.", "syn": ["skill", "ability", "expertise"], "ant": ["incompetence", "weakness", "inability"], "ex": "A core competency becomes a competitive advantage only if you focus on it."}, {"w": 1, "d": 4, "lv": "B1", "word": "market", "pos": "n", "ph": "/ˈmɑːrkɪt/", "mn": "Зах зээл", "def": "The group of people who buy a particular product or service.", "syn": ["industry", "sector", "customer base"], "ant": ["monopoly", "closed system"], "ex": "Great companies understood their market deeply, including what customers truly needed."}, {"w": 1, "d": 4, "lv": "B1", "word": "revenue", "pos": "n", "ph": "/ˈrevənjuː/", "mn": "Орлого", "def": "The total income a business earns before expenses.", "syn": ["income", "earnings", "turnover"], "ant": ["expenses", "costs", "losses"], "ex": "Revenue growth followed once great companies focused on doing fewer things better."}, {"w": 1, "d": 4, "lv": "B2", "word": "sustainability", "pos": "n", "ph": "/səˌsteɪnəˈbɪlɪti/", "mn": "Тогтвортой байдал", "def": "The ability to continue at the same level over time.", "syn": ["durability", "longevity", "resilience"], "ant": ["fragility", "impermanence", "volatility"], "ex": "The goal of the book was to find the formula for long-term sustainability."}, {"w": 1, "d": 5, "lv": "B1", "word": "methodology", "pos": "n", "ph": "/ˌmeθəˈdɒlədʒi/", "mn": "Арга зүй", "def": "A system of methods used in research or study.", "syn": ["approach", "framework", "technique"], "ant": ["chaos", "guesswork", "randomness"], "ex": "Collins described his methodology clearly — 5 years, 1,435 companies, strict criteria."}, {"w": 1, "d": 5, "lv": "B1", "word": "hypothesis", "pos": "n", "ph": "/haɪˈpɒθɪsɪs/", "mn": "Таамаглал", "def": "An idea that is tested through research.", "syn": ["theory", "assumption", "proposition"], "ant": ["fact", "proof", "conclusion"], "ex": "The team started with a hypothesis: great companies must have charismatic leaders — but the data proved them wrong."}, {"w": 1, "d": 5, "lv": "B1", "word": "conclusion", "pos": "n", "ph": "/kənˈkluːʒən/", "mn": "Дүгнэлт", "def": "A decision reached after careful thought or research.", "syn": ["finding", "outcome", "judgment"], "ant": ["question", "beginning", "premise"], "ex": "The final conclusion was that Level 5 leadership was the single most important factor."}, {"w": 1, "d": 5, "lv": "B1", "word": "framework", "pos": "n", "ph": "/ˈfreɪmwɜːrk/", "mn": "Загвар", "def": "A structure of ideas used to solve a problem.", "syn": ["model", "system", "structure"], "ant": ["chaos", "disorganization", "mess"], "ex": "The Flywheel and Doom Loop is a framework for understanding organizational momentum."}, {"w": 1, "d": 5, "lv": "B2", "word": "criterion", "pos": "n", "ph": "/kraɪˈtɪəriən/", "mn": "Шалгуур", "def": "A standard used to judge or decide something.", "syn": ["standard", "measure", "requirement"], "ant": ["guess", "irrelevance", "subjectivity"], "ex": "The main criterion for selecting companies was a 15-year sustained performance above the market average."}, {"w": 1, "d": 5, "lv": "B1", "word": "variable", "pos": "n", "ph": "/ˈveəriəbəl/", "mn": "Хувьсагч", "def": "A factor that can change in a study or situation.", "syn": ["factor", "element", "component"], "ant": ["constant", "fixed", "unchanging"], "ex": "They controlled for variables like industry and timing to isolate what truly made the difference."}, {"w": 1, "d": 5, "lv": "B2", "word": "empirical", "pos": "adj", "ph": "/ɪmˈpɪrɪkəl/", "mn": "Туршлага дээр суурилсан", "def": "Based on observation and data, not theory.", "syn": ["evidence-based", "factual", "observed"], "ant": ["theoretical", "speculative", "assumed"], "ex": "Collins insisted that every claim in the book be supported by empirical evidence."}, {"w": 1, "d": 5, "lv": "B1", "word": "insight", "pos": "n", "ph": "/ˈɪnsaɪt/", "mn": "Ойлголт", "def": "A deep understanding of something.", "syn": ["understanding", "perception", "awareness"], "ant": ["ignorance", "confusion", "blindness"], "ex": "The most powerful insight was that great companies stopped doing things, not started doing things."}, {"w": 1, "d": 5, "lv": "B2", "word": "correlation", "pos": "n", "ph": "/ˌkɒrəˈleɪʃən/", "mn": "Хамаарал", "def": "A relationship between two things where one changes with the other.", "syn": ["relationship", "connection", "association"], "ant": ["independence", "separation", "irrelevance"], "ex": "There was a strong correlation between Level 5 leadership and sustained company performance."}, {"w": 1, "d": 5, "lv": "B1", "word": "category", "pos": "n", "ph": "/ˈkætɪɡəri/", "mn": "Ангилал", "def": "A group of things with shared characteristics.", "syn": ["group", "class", "type"], "ant": ["individual", "unique", "unclassified"], "ex": "Collins put leadership into five categories from least to most effective."}, {"w": 1, "d": 5, "lv": "B2", "word": "implication", "pos": "n", "ph": "/ˌɪmplɪˈkeɪʃən/", "mn": "Нөлөө, үр дагавар", "def": "A possible consequence or effect of something.", "syn": ["consequence", "effect", "meaning"], "ant": ["cause", "origin", "reason"], "ex": "The implication of the research is that leadership character matters more than leadership charisma."}, {"w": 1, "d": 5, "lv": "B1", "word": "assumption", "pos": "n", "ph": "/əˈsʌmpʃən/", "mn": "Таамаглал", "def": "Something believed to be true without proof.", "syn": ["belief", "premise", "guess"], "ant": ["fact", "proof", "evidence"], "ex": "The team challenged every assumption, including the idea that great companies need bold leaders."}, {"w": 1, "d": 5, "lv": "B2", "word": "distinguish", "pos": "v", "ph": "/dɪˈstɪŋɡwɪʃ/", "mn": "Ялгах", "def": "To recognize or show the difference between things.", "syn": ["differentiate", "separate", "discriminate"], "ant": ["confuse", "mix up", "combine"], "ex": "Collins wanted to distinguish what truly great companies did versus what average companies did."}, {"w": 1, "d": 5, "lv": "B1", "word": "evaluate", "pos": "v", "ph": "/ɪˈvæljueɪt/", "mn": "Үнэлэх", "def": "To judge the value or quality of something.", "syn": ["assess", "judge", "measure"], "ant": ["ignore", "overlook", "assume"], "ex": "The research team evaluated each company based on strict, measurable performance criteria."}, {"w": 1, "d": 5, "lv": "B2", "word": "dispel", "pos": "v", "ph": "/dɪˈspel/", "mn": "Арилгах", "def": "To make a doubt or belief disappear.", "syn": ["dismiss", "remove", "eliminate"], "ant": ["confirm", "reinforce", "strengthen"], "ex": "The book was written to dispel the myth that great leaders must be charismatic personalities."}, {"w": 1, "d": 5, "lv": "B1", "word": "examine", "pos": "v", "ph": "/ɪɡˈzæmɪn/", "mn": "Судлах", "def": "To look at something carefully and thoroughly.", "syn": ["study", "inspect", "investigate"], "ant": ["ignore", "overlook", "skim"], "ex": "Collins and his team examined thousands of articles and interviews about each company."}, {"w": 1, "d": 5, "lv": "B2", "word": "validate", "pos": "v", "ph": "/ˈvælɪdeɪt/", "mn": "Батлах", "def": "To prove that something is correct or true.", "syn": ["confirm", "verify", "prove"], "ant": ["disprove", "invalidate", "refute"], "ex": "Each principle had to be validated by multiple companies across different industries."}, {"w": 1, "d": 5, "lv": "B1", "word": "demonstrate", "pos": "v", "ph": "/ˈdemənstreɪt/", "mn": "Харуулах", "def": "To show or prove something clearly.", "syn": ["show", "prove", "illustrate"], "ant": ["hide", "disprove", "deny"], "ex": "Collins used company timelines to demonstrate how long transformation actually takes."}, {"w": 1, "d": 5, "lv": "B2", "word": "synthesize", "pos": "v", "ph": "/ˈsɪnθɪsaɪz/", "mn": "Нэгтгэх", "def": "To combine information from different sources into one whole.", "syn": ["combine", "integrate", "merge"], "ant": ["separate", "divide", "analyze"], "ex": "The book synthesized five years of research into six clear, actionable principles."}, {"w": 1, "d": 5, "lv": "B1", "word": "document", "pos": "v", "ph": "/ˈdɒkjumənt/", "mn": "Баримтжуулах", "def": "To record information carefully.", "syn": ["record", "register", "log"], "ant": ["ignore", "forget", "erase"], "ex": "Collins documented hundreds of decisions made by leaders of good-to-great companies."}, {"w": 1, "d": 5, "lv": "B2", "word": "replicate", "pos": "v", "ph": "/ˈreplɪkeɪt/", "mn": "Давтах", "def": "To copy or reproduce something exactly.", "syn": ["repeat", "copy", "reproduce"], "ant": ["originate", "create", "invent"], "ex": "The key question is: can other organizations replicate what great companies did?"}, {"w": 1, "d": 5, "lv": "B1", "word": "predict", "pos": "v", "ph": "/prɪˈdɪkt/", "mn": "Урьдчилан таах", "def": "To say what will happen in the future.", "syn": ["forecast", "anticipate", "expect"], "ant": ["guess", "react", "ignore"], "ex": "Good data and clear principles can help leaders predict what will work in their organization."}, {"w": 2, "d": 1, "lv": "B2", "word": "humility", "pos": "n", "ph": "/hjuːˈmɪlɪti/", "mn": "Даруу байдал", "def": "The quality of not thinking you are better than others.", "syn": ["modesty", "meekness", "simplicity"], "ant": ["arrogance", "pride", "boastfulness"], "ex": "Level 5 leaders showed deep humility — they credited their teams, not themselves."}, {"w": 2, "d": 1, "lv": "B2", "word": "ambition", "pos": "n", "ph": "/æmˈbɪʃən/", "mn": "Зорилго, хүсэл эрмэлзэл", "def": "A strong desire to achieve success.", "syn": ["drive", "determination", "motivation"], "ant": ["complacency", "laziness", "indifference"], "ex": "Level 5 leaders had fierce ambition for the organization, not for personal recognition."}, {"w": 2, "d": 1, "lv": "B2", "word": "willpower", "pos": "n", "ph": "/ˈwɪlpaʊər/", "mn": "Хүч зориг", "def": "Strong determination to control your actions.", "syn": ["resolve", "determination", "self-discipline"], "ant": ["weakness", "indecision", "passivity"], "ex": "Level 5 leaders had the willpower to make hard decisions even when it was painful."}, {"w": 2, "d": 1, "lv": "B1", "word": "credit", "pos": "n", "ph": "/ˈkredɪt/", "mn": "Гавьяа", "def": "Recognition given to someone for their work.", "syn": ["recognition", "praise", "acknowledgment"], "ant": ["blame", "criticism", "condemnation"], "ex": "Great leaders gave credit to others when things went well."}, {"w": 2, "d": 1, "lv": "B1", "word": "blame", "pos": "n", "ph": "/bleɪm/", "mn": "Буруутгал", "def": "Responsibility for a fault or wrong.", "syn": ["fault", "responsibility", "criticism"], "ant": ["credit", "praise", "reward"], "ex": "When things went wrong, Level 5 leaders took blame themselves, not blamed others."}, {"w": 2, "d": 1, "lv": "B2", "word": "successor", "pos": "n", "ph": "/səkˈsesər/", "mn": "Залгамжлагч", "def": "A person who comes after another in a role.", "syn": ["replacement", "heir", "follower"], "ant": ["predecessor", "former leader"], "ex": "Level 5 leaders prepared a strong successor before they left the company."}, {"w": 2, "d": 1, "lv": "B1", "word": "character", "pos": "n", "ph": "/ˈkærɪktər/", "mn": "Зан чанар", "def": "The mental and moral qualities of a person.", "syn": ["personality", "nature", "integrity"], "ant": ["weakness", "dishonesty", "immorality"], "ex": "Great leaders had strong character — their private and public behavior was the same."}, {"w": 2, "d": 1, "lv": "B2", "word": "integrity", "pos": "n", "ph": "/ɪnˈteɡrɪti/", "mn": "Шударга байдал", "def": "The quality of being honest and having strong moral principles.", "syn": ["honesty", "ethics", "virtue"], "ant": ["dishonesty", "corruption", "deception"], "ex": "Without integrity, no leader can build a truly great and lasting organization."}, {"w": 2, "d": 1, "lv": "B1", "word": "vision", "pos": "n", "ph": "/ˈvɪʒən/", "mn": "Алсын харааc", "def": "A clear idea or plan of what you want to achieve.", "syn": ["dream", "goal", "aspiration"], "ant": ["shortsightedness", "confusion", "aimlessness"], "ex": "A leader's vision must match what the company can realistically become great at."}, {"w": 2, "d": 1, "lv": "B2", "word": "charisma", "pos": "n", "ph": "/kəˈrɪzmə/", "mn": "Сэтгэл татах чадвар", "def": "A natural ability to attract and inspire others.", "syn": ["charm", "appeal", "magnetism"], "ant": ["dullness", "repulsiveness", "invisibility"], "ex": "Surprisingly, charisma was not a major factor in Level 5 leaders — many were quiet and reserved."}, {"w": 2, "d": 1, "lv": "B2", "word": "ego", "pos": "n", "ph": "/ˈiːɡoʊ/", "mn": "Өөрийгөө үнэлэх үнэлэмж", "def": "A person's sense of self-importance.", "syn": ["pride", "self-image", "self-esteem"], "ant": ["humility", "modesty", "selflessness"], "ex": "High ego leaders often sabotage companies by making decisions to protect their reputation."}, {"w": 2, "d": 1, "lv": "B1", "word": "courage", "pos": "n", "ph": "/ˈkɜːrɪdʒ/", "mn": "Зориг", "def": "The ability to face fear or difficulty.", "syn": ["bravery", "boldness", "determination"], "ant": ["cowardice", "fear", "timidity"], "ex": "It takes courage to remove a good person who is wrong for the role."}, {"w": 2, "d": 1, "lv": "B2", "word": "perseverance", "pos": "n", "ph": "/ˌpɜːrsɪˈvɪərəns/", "mn": "Тэвчээр", "def": "Continued effort despite difficulty.", "syn": ["persistence", "endurance", "determination"], "ant": ["giving up", "quitting", "weakness"], "ex": "Level 5 leaders showed perseverance — they never gave up on the long-term goal."}, {"w": 2, "d": 1, "lv": "B1", "word": "trust", "pos": "n", "ph": "/trʌst/", "mn": "Итгэл", "def": "A firm belief in someone's honesty or ability.", "syn": ["confidence", "faith", "reliance"], "ant": ["distrust", "doubt", "suspicion"], "ex": "Great leaders built trust by doing what they said they would do."}, {"w": 2, "d": 1, "lv": "B1", "word": "authority", "pos": "n", "ph": "/ɔːˈθɒrɪti/", "mn": "Эрх мэдэл", "def": "The power to make decisions and give orders.", "syn": ["power", "control", "command"], "ant": ["weakness", "submission", "powerlessness"], "ex": "Authority must be earned through results, not just through a job title."}, {"w": 2, "d": 1, "lv": "B2", "word": "mentorship", "pos": "n", "ph": "/ˈmentɔːrʃɪp/", "mn": "Зөвлөх харилцаа", "def": "Guidance given by an experienced person to a less experienced one.", "syn": ["coaching", "guidance", "development"], "ant": ["neglect", "abandonment", "indifference"], "ex": "Level 5 leaders invested in mentorship to ensure the organization could continue without them."}, {"w": 2, "d": 1, "lv": "B1", "word": "reputation", "pos": "n", "ph": "/ˌrepjuˈteɪʃən/", "mn": "Нэр хүнд", "def": "The opinions people have about someone based on their actions.", "syn": ["image", "standing", "name"], "ant": ["obscurity", "disrepute", "shame"], "ex": "A great leader builds the organization's reputation, not their own personal brand."}, {"w": 2, "d": 1, "lv": "B2", "word": "resilience", "pos": "n", "ph": "/rɪˈzɪliəns/", "mn": "Тэсвэрлэх чадвар", "def": "The ability to recover from difficulties.", "syn": ["toughness", "strength", "adaptability"], "ant": ["fragility", "weakness", "vulnerability"], "ex": "Level 5 leaders showed resilience — they stayed calm and focused during crises."}, {"w": 2, "d": 1, "lv": "B1", "word": "influence", "pos": "n", "ph": "/ˈɪnfluəns/", "mn": "Нөлөө", "def": "The power to affect people's decisions or behavior.", "syn": ["impact", "effect", "power"], "ant": ["powerlessness", "irrelevance", "weakness"], "ex": "The most effective leaders influenced through actions and results, not words."}, {"w": 2, "d": 1, "lv": "B1", "word": "example", "pos": "n", "ph": "/ɪɡˈzɑːmpəl/", "mn": "Жишээ", "def": "A person or thing used to illustrate a point.", "syn": ["model", "illustration", "case"], "ant": ["exception", "anomaly", "counterexample"], "ex": "Level 5 leaders led by example — they worked as hard as anyone in the company."}, {"w": 2, "d": 1, "lv": "B2", "word": "accountability", "pos": "n", "ph": "/əˌkaʊntəˈbɪlɪti/", "mn": "Хариуцлага", "def": "The responsibility to explain and justify actions and results.", "syn": ["responsibility", "ownership", "answerability"], "ant": ["irresponsibility", "blame-shifting", "avoidance"], "ex": "Level 5 leaders took full accountability for failures — they never blamed the market or luck."}, {"w": 2, "d": 1, "lv": "B1", "word": "empathy", "pos": "n", "ph": "/ˈempəθi/", "mn": "Хамтарч мэдрэх чадвар", "def": "The ability to understand and share others' feelings.", "syn": ["compassion", "understanding", "sensitivity"], "ant": ["indifference", "coldness", "cruelty"], "ex": "Empathy helped great leaders understand what their people truly needed to succeed."}, {"w": 2, "d": 2, "lv": "B2", "word": "inspire", "pos": "v", "ph": "/ɪnˈspaɪər/", "mn": "Урамшуулах", "def": "To make someone feel motivated and enthusiastic.", "syn": ["motivate", "energize", "encourage"], "ant": ["discourage", "demoralize", "deflate"], "ex": "Level 5 leaders inspired by building a culture where people wanted to come to work."}, {"w": 2, "d": 2, "lv": "B1", "word": "delegate", "pos": "v", "ph": "/ˈdelɪɡeɪt/", "mn": "Даалгах", "def": "To give a task or responsibility to someone else.", "syn": ["assign", "entrust", "transfer"], "ant": ["micromanage", "control", "withhold"], "ex": "Great leaders delegate well — they trust people to do their jobs without interference."}, {"w": 2, "d": 2, "lv": "B1", "word": "empower", "pos": "v", "ph": "/ɪmˈpaʊər/", "mn": "Хүчлэх, чадваржуулах", "def": "To give someone the authority and confidence to act.", "syn": ["enable", "authorize", "strengthen"], "ant": ["restrict", "undermine", "disempower"], "ex": "Level 5 leaders empower their team to make decisions independently."}, {"w": 2, "d": 2, "lv": "B1", "word": "communicate", "pos": "v", "ph": "/kəˈmjuːnɪkeɪt/", "mn": "Харилцах", "def": "To share information with others clearly.", "syn": ["express", "convey", "share"], "ant": ["hide", "withhold", "confuse"], "ex": "Great leaders communicate openly and honestly, even when the news is difficult."}, {"w": 2, "d": 2, "lv": "B2", "word": "motivate", "pos": "v", "ph": "/ˈmoʊtɪveɪt/", "mn": "Урам зориг өгөх", "def": "To give someone a reason to work hard.", "syn": ["inspire", "encourage", "drive"], "ant": ["discourage", "demotivate", "undermine"], "ex": "You cannot motivate people through fear — build the right culture and people motivate themselves."}, {"w": 2, "d": 2, "lv": "B1", "word": "negotiate", "pos": "v", "ph": "/nɪˈɡoʊʃieɪt/", "mn": "Хэлэлцэх", "def": "To discuss something to reach an agreement.", "syn": ["discuss", "bargain", "mediate"], "ant": ["demand", "dictate", "impose"], "ex": "Leaders negotiate through facts and shared goals, not personal power or emotion."}, {"w": 2, "d": 2, "lv": "B2", "word": "mentor", "pos": "v", "ph": "/ˈmentɔːr/", "mn": "Зөвлөх", "def": "To guide and support a less experienced person.", "syn": ["guide", "coach", "teach"], "ant": ["ignore", "abandon", "neglect"], "ex": "The best Level 5 leaders mentored the next generation of leaders before stepping down."}, {"w": 2, "d": 2, "lv": "B1", "word": "observe", "pos": "v", "ph": "/əbˈzɜːrv/", "mn": "Ажиглах", "def": "To watch carefully and notice details.", "syn": ["watch", "notice", "monitor"], "ant": ["ignore", "overlook", "miss"], "ex": "Level 5 leaders observed the people around them — they knew who truly contributed."}, {"w": 2, "d": 2, "lv": "B2", "word": "prioritize", "pos": "v", "ph": "/praɪˈɒrɪtaɪz/", "mn": "Тэргүүлэх байдлаар тодорхойлох", "def": "To decide what is most important and do that first.", "syn": ["rank", "order", "focus on"], "ant": ["scatter", "ignore", "distract"], "ex": "Great leaders know how to prioritize — they focus energy on what moves the flywheel."}, {"w": 2, "d": 2, "lv": "B1", "word": "collaborate", "pos": "v", "ph": "/kəˈlæbəreɪt/", "mn": "Хамтран ажиллах", "def": "To work together toward a common goal.", "syn": ["cooperate", "partner", "work together"], "ant": ["compete", "oppose", "isolate"], "ex": "The best companies created an environment where people wanted to collaborate and help each other."}, {"w": 2, "d": 2, "lv": "B2", "word": "acknowledge", "pos": "v", "ph": "/əkˈnɒlɪdʒ/", "mn": "Хүлээн зөвшөөрөх", "def": "To accept or admit that something is true.", "syn": ["recognize", "admit", "accept"], "ant": ["deny", "ignore", "reject"], "ex": "Level 5 leaders acknowledge mistakes quickly and use them as learning opportunities."}, {"w": 2, "d": 2, "lv": "B1", "word": "adapt", "pos": "v", "ph": "/əˈdæpt/", "mn": "Дасан зохицох", "def": "To change in order to fit a new situation.", "syn": ["adjust", "modify", "change"], "ant": ["resist", "stay same", "refuse"], "ex": "Great leaders adapt their approach based on facts, not on personal preference."}, {"w": 2, "d": 2, "lv": "B2", "word": "retain", "pos": "v", "ph": "/rɪˈteɪn/", "mn": "Хадгалан үлдэх", "def": "To keep something or someone.", "syn": ["keep", "maintain", "preserve"], "ant": ["lose", "dismiss", "release"], "ex": "Great companies could retain top talent because the culture was strong and meaningful."}, {"w": 2, "d": 2, "lv": "B1", "word": "protect", "pos": "v", "ph": "/prəˈtekt/", "mn": "Хамгаалах", "def": "To keep someone or something safe from harm.", "syn": ["guard", "defend", "shield"], "ant": ["expose", "harm", "attack"], "ex": "Level 5 leaders protect the organization from their own ego and pride."}, {"w": 2, "d": 2, "lv": "B1", "word": "challenge", "pos": "v", "ph": "/ˈtʃælɪndʒ/", "mn": "Сорил болгох", "def": "To question or test something in order to improve it.", "syn": ["question", "test", "push"], "ant": ["accept", "ignore", "agree"], "ex": "Great leaders challenge their team to think harder and face uncomfortable truths."}, {"w": 2, "d": 2, "lv": "B2", "word": "exemplify", "pos": "v", "ph": "/ɪɡˈzemplɪfaɪ/", "mn": "Жишээ болгох", "def": "To be a typical example of something.", "syn": ["represent", "illustrate", "demonstrate"], "ant": ["contradict", "undermine"], "ex": "Level 5 leaders exemplify the behavior they want to see in their entire organization."}, {"w": 2, "d": 2, "lv": "B1", "word": "support", "pos": "v", "ph": "/səˈpɔːrt/", "mn": "Дэмжих", "def": "To give help or assistance to someone.", "syn": ["assist", "back", "help"], "ant": ["oppose", "undermine", "abandon"], "ex": "Great leaders support their team by removing obstacles, not creating more of them."}, {"w": 2, "d": 2, "lv": "B2", "word": "transcend", "pos": "v", "ph": "/trænˈsend/", "mn": "Давах", "def": "To go beyond the limits of something.", "syn": ["surpass", "exceed", "rise above"], "ant": ["fail", "fall short", "stay within"], "ex": "Level 5 leaders transcend personal ambition — they work for something bigger than themselves."}, {"w": 2, "d": 2, "lv": "B1", "word": "promote", "pos": "v", "ph": "/prəˈmoʊt/", "mn": "Дэвшүүлэх", "def": "To raise someone to a higher position or encourage something.", "syn": ["advance", "elevate", "support"], "ant": ["demote", "discourage", "suppress"], "ex": "Great leaders promote people based on capability, not loyalty or seniority."}, {"w": 2, "d": 2, "lv": "B2", "word": "confront", "pos": "v", "ph": "/kənˈfrʌnt/", "mn": "Нүүр тулах", "def": "To face something directly and honestly.", "syn": ["face", "tackle", "address"], "ant": ["avoid", "ignore", "deny"], "ex": "Level 5 leaders will confront even the most powerful board member if the data shows they are wrong."}, {"w": 2, "d": 2, "lv": "B1", "word": "recognize", "pos": "v", "ph": "/ˈrekəɡnaɪz/", "mn": "Таних, хүлээн зөвшөөрөх", "def": "To identify something or appreciate its value.", "syn": ["acknowledge", "identify", "appreciate"], "ant": ["ignore", "overlook", "deny"], "ex": "Great leaders recognize talent quickly and put it where it will have the most impact."}, {"w": 2, "d": 2, "lv": "B2", "word": "cultivate", "pos": "v", "ph": "/ˈkʌltɪveɪt/", "mn": "Хөгжүүлэх", "def": "To develop or improve something over time.", "syn": ["develop", "nurture", "grow"], "ant": ["neglect", "destroy", "abandon"], "ex": "Level 5 leaders cultivate a culture where people feel safe to speak their mind."}, {"w": 2, "d": 3, "lv": "B2", "word": "stoic", "pos": "adj", "ph": "/ˈstoʊɪk/", "mn": "Тэвчээртэй", "def": "Calm and showing no emotion when facing difficulties.", "syn": ["composed", "calm", "resilient"], "ant": ["emotional", "reactive", "unstable"], "ex": "Level 5 leaders were stoic — they didn't panic in crisis or celebrate too early in success."}, {"w": 2, "d": 3, "lv": "B2", "word": "resolute", "pos": "adj", "ph": "/ˈrezəluːt/", "mn": "Шийдэмгий", "def": "Determined and unwilling to change direction.", "syn": ["determined", "firm", "decisive"], "ant": ["uncertain", "weak", "hesitant"], "ex": "The leader was resolute — even when others doubted the plan, she never wavered."}, {"w": 2, "d": 3, "lv": "B1", "word": "quiet", "pos": "adj", "ph": "/ˈkwaɪət/", "mn": "Дуугай", "def": "Without much noise or attention; calm and reserved.", "syn": ["calm", "reserved", "silent"], "ant": ["loud", "attention-seeking", "noisy"], "ex": "Paradoxically, the most effective leaders were often the quietest in the room."}, {"w": 2, "d": 3, "lv": "B2", "word": "tenacious", "pos": "adj", "ph": "/tɪˈneɪʃəs/", "mn": "Тачаангуй", "def": "Holding firmly to a goal and not giving up.", "syn": ["persistent", "stubborn", "determined"], "ant": ["weak", "giving up", "flexible"], "ex": "Level 5 leaders were tenacious — they stayed focused on the same goal for decades."}, {"w": 2, "d": 3, "lv": "B1", "word": "ethical", "pos": "adj", "ph": "/ˈeθɪkəl/", "mn": "Ёс суртахуунтай", "def": "Following moral principles and doing what is right.", "syn": ["moral", "honest", "principled"], "ant": ["unethical", "corrupt", "immoral"], "ex": "Every Level 5 leader was deeply ethical — they would not compromise their values for short-term profit."}, {"w": 2, "d": 3, "lv": "B2", "word": "accountable", "pos": "adj", "ph": "/əˈkaʊntəbəl/", "mn": "Хариуцлагатай", "def": "Responsible for explaining and justifying your actions.", "syn": ["responsible", "answerable", "liable"], "ant": ["irresponsible", "unaccountable", "exempt"], "ex": "Great leaders are accountable to the organization, not just to shareholders."}, {"w": 2, "d": 3, "lv": "B1", "word": "selfless", "pos": "adj", "ph": "/ˈselfləs/", "mn": "Өөрийгөө бус бусдыг гол болгодог", "def": "Thinking about others' needs before your own.", "syn": ["unselfish", "generous", "giving"], "ant": ["selfish", "self-centered", "greedy"], "ex": "Level 5 leaders were selfless — they hired people who were more talented than themselves."}, {"w": 2, "d": 3, "lv": "B2", "word": "courageous", "pos": "adj", "ph": "/kəˈreɪdʒəs/", "mn": "Зоригтой", "def": "Showing bravery in difficult situations.", "syn": ["brave", "bold", "fearless"], "ant": ["cowardly", "timid", "fearful"], "ex": "It takes a courageous leader to admit a mistake publicly and then fix it."}, {"w": 2, "d": 3, "lv": "B1", "word": "transparent", "pos": "adj", "ph": "/trænsˈpærənt/", "mn": "Нээлттэй", "def": "Open and clear about information and decisions.", "syn": ["honest", "open", "clear"], "ant": ["secretive", "hidden", "deceptive"], "ex": "Transparent leaders share both good and bad news with their teams honestly."}, {"w": 2, "d": 3, "lv": "B2", "word": "adaptable", "pos": "adj", "ph": "/əˈdæptəbəl/", "mn": "Дасан зохицдог", "def": "Able to change easily to suit new situations.", "syn": ["flexible", "versatile", "adjustable"], "ant": ["rigid", "inflexible", "stubborn"], "ex": "Level 5 leaders were adaptable — they changed methods but never compromised core values."}, {"w": 2, "d": 3, "lv": "B1", "word": "loyal", "pos": "adj", "ph": "/ˈlɔɪəl/", "mn": "Үнэнч", "def": "Showing commitment and support to someone or something.", "syn": ["faithful", "devoted", "dedicated"], "ant": ["disloyal", "betraying", "unfaithful"], "ex": "Great leaders inspired loyal teams — not through fear, but through shared values."}, {"w": 2, "d": 3, "lv": "B2", "word": "visionary", "pos": "adj", "ph": "/ˈvɪʒəneri/", "mn": "Алсыг харсан", "def": "Having clear and creative ideas about the future.", "syn": ["forward-thinking", "innovative", "ambitious"], "ant": ["shortsighted", "narrow-minded", "reactive"], "ex": "Great leaders are visionary but also grounded in the current reality."}, {"w": 2, "d": 3, "lv": "B1", "word": "empathetic", "pos": "adj", "ph": "/ˌempəˈθetɪk/", "mn": "Мэдрэмжтэй", "def": "Able to understand and share others' feelings.", "syn": ["understanding", "compassionate", "sensitive"], "ant": ["cold", "uncaring", "insensitive"], "ex": "An empathetic leader notices when team members are struggling before they say anything."}, {"w": 2, "d": 3, "lv": "B2", "word": "principled", "pos": "adj", "ph": "/ˈprɪnsɪpəld/", "mn": "Зарчимч", "def": "Acting according to clear moral values.", "syn": ["ethical", "moral", "upright"], "ant": ["unprincipled", "corrupt", "hypocritical"], "ex": "A principled leader does the right thing even when no one is watching."}, {"w": 2, "d": 3, "lv": "B1", "word": "influential", "pos": "adj", "ph": "/ˌɪnfluˈenʃəl/", "mn": "Нөлөөтэй", "def": "Having a strong effect on others.", "syn": ["powerful", "effective", "impactful"], "ant": ["powerless", "ineffective", "irrelevant"], "ex": "The most influential leaders created change through culture, not through commands."}, {"w": 2, "d": 3, "lv": "B2", "word": "proactive", "pos": "adj", "ph": "/ˌproʊˈæktɪv/", "mn": "Санаачлагатай", "def": "Taking action before a problem arises.", "syn": ["forward-thinking", "anticipatory", "prepared"], "ant": ["reactive", "passive", "unprepared"], "ex": "Level 5 leaders were proactive — they identified problems before they became crises."}, {"w": 2, "d": 3, "lv": "B1", "word": "dedicated", "pos": "adj", "ph": "/ˈdedɪkeɪtɪd/", "mn": "Зориулалттай", "def": "Working hard and committed to a goal.", "syn": ["committed", "devoted", "focused"], "ant": ["uncommitted", "distracted", "disengaged"], "ex": "Great companies needed dedicated people who cared about the mission, not just the salary."}, {"w": 2, "d": 3, "lv": "B2", "word": "inspirational", "pos": "adj", "ph": "/ˌɪnspɪˈreɪʃənəl/", "mn": "Урам зориг өгдөг", "def": "Making people feel excited and motivated.", "syn": ["motivating", "encouraging", "uplifting"], "ant": ["demoralizing", "discouraging", "boring"], "ex": "The most inspirational leaders didn't give speeches — they showed by doing."}, {"w": 2, "d": 3, "lv": "B1", "word": "strategic", "pos": "adj", "ph": "/strəˈtiːdʒɪk/", "mn": "Стратегийн", "def": "Relating to a long-term plan for achieving a goal.", "syn": ["planned", "purposeful", "calculated"], "ant": ["impulsive", "reactive", "random"], "ex": "Level 5 leaders were strategic — every decision connected back to the Hedgehog Concept."}, {"w": 2, "d": 3, "lv": "B2", "word": "impartial", "pos": "adj", "ph": "/ɪmˈpɑːrʃəl/", "mn": "Нэг талгүй", "def": "Treating everyone equally without favoritism.", "syn": ["fair", "neutral", "objective"], "ant": ["biased", "partial", "unfair"], "ex": "Great leaders are impartial — they evaluate ideas based on merit, not on who suggested them."}, {"w": 2, "d": 3, "lv": "B1", "word": "decisive", "pos": "adj", "ph": "/dɪˈsaɪsɪv/", "mn": "Шийдэмгий", "def": "Making decisions quickly and with confidence.", "syn": ["firm", "determined", "resolute"], "ant": ["indecisive", "hesitant", "weak"], "ex": "Level 5 leaders are decisive — they don't delay hard decisions out of fear of conflict."}, {"w": 2, "d": 3, "lv": "B2", "word": "authentic", "pos": "adj", "ph": "/ɔːˈθentɪk/", "mn": "Жинхэнэ", "def": "Genuine, real, and not pretending.", "syn": ["genuine", "real", "sincere"], "ant": ["fake", "dishonest", "artificial"], "ex": "Authentic leaders are the same person in public and in private."}, {"w": 2, "d": 4, "lv": "B2", "word": "hierarchy", "pos": "n", "ph": "/ˈhaɪərɑːrki/", "mn": "Шатлал", "def": "A system in which people are ranked by authority.", "syn": ["ranking", "chain of command", "structure"], "ant": ["equality", "flat structure", "anarchy"], "ex": "In great companies, hierarchy exists — but it does not prevent honest communication."}, {"w": 2, "d": 4, "lv": "B1", "word": "promotion", "pos": "n", "ph": "/prəˈmoʊʃən/", "mn": "Дэвшил", "def": "Being raised to a higher position or level.", "syn": ["advancement", "elevation", "upgrade"], "ant": ["demotion", "dismissal", "relegation"], "ex": "Promotions in great companies were based on results and values — not just politics."}, {"w": 2, "d": 4, "lv": "B2", "word": "recruitment", "pos": "n", "ph": "/rɪˈkruːtmənt/", "mn": "Ажилтан элсүүлэх", "def": "The process of finding and hiring new employees.", "syn": ["hiring", "selection", "staffing"], "ant": ["dismissal", "redundancy", "firing"], "ex": "The most important leadership task is often recruitment — getting the right people first."}, {"w": 2, "d": 4, "lv": "B1", "word": "feedback", "pos": "n", "ph": "/ˈfiːdbæk/", "mn": "Эргэх холбоо", "def": "Information given to help someone improve.", "syn": ["response", "comment", "evaluation"], "ant": ["silence", "ignoring", "withholding"], "ex": "In great companies, honest feedback is welcomed — not punished."}, {"w": 2, "d": 4, "lv": "B2", "word": "collaboration", "pos": "n", "ph": "/kəˌlæbəˈreɪʃən/", "mn": "Хамтын ажиллагаа", "def": "Working together with others to achieve a shared goal.", "syn": ["teamwork", "cooperation", "partnership"], "ant": ["competition", "isolation", "rivalry"], "ex": "Great companies built collaboration into the culture — people helped each other succeed."}, {"w": 2, "d": 4, "lv": "B1", "word": "initiative", "pos": "n", "ph": "/ɪˈnɪʃɪətɪv/", "mn": "Санаачлага", "def": "The ability to take action without being told to.", "syn": ["proactivity", "enterprise", "drive"], "ant": ["passivity", "inaction", "waiting"], "ex": "Great companies reward initiative — people feel free to act without asking permission for everything."}, {"w": 2, "d": 4, "lv": "B2", "word": "cohesion", "pos": "n", "ph": "/koʊˈhiːʒən/", "mn": "Нэгдмэл байдал", "def": "The quality of forming a united whole.", "syn": ["unity", "solidarity", "togetherness"], "ant": ["division", "conflict", "fragmentation"], "ex": "Team cohesion was high in great companies — people shared the same values and goals."}, {"w": 2, "d": 4, "lv": "B1", "word": "morale", "pos": "n", "ph": "/məˈrɑːl/", "mn": "Сэтгэл зориг", "def": "The confidence and enthusiasm of a group.", "syn": ["spirit", "motivation", "enthusiasm"], "ant": ["demoralization", "discouragement", "despair"], "ex": "High morale was a natural result of a great culture — not something forced by bonuses."}, {"w": 2, "d": 4, "lv": "B2", "word": "autonomy", "pos": "n", "ph": "/ɔːˈtɒnəmi/", "mn": "Бие даасан байдал", "def": "The right to make your own decisions.", "syn": ["independence", "freedom", "self-governance"], "ant": ["control", "dependence", "micromanagement"], "ex": "Great companies gave people autonomy within a framework of clear values and accountability."}, {"w": 2, "d": 4, "lv": "B1", "word": "diversity", "pos": "n", "ph": "/daɪˈvɜːrsɪti/", "mn": "Олон янз байдал", "def": "The range of different people or ideas in a group.", "syn": ["variety", "range", "inclusion"], "ant": ["uniformity", "sameness", "exclusion"], "ex": "Diversity of perspective led to better decisions in great companies."}, {"w": 2, "d": 4, "lv": "B2", "word": "dialogue", "pos": "n", "ph": "/ˈdaɪəlɒɡ/", "mn": "Яриа хэлэлцээр", "def": "A conversation between people to reach understanding.", "syn": ["discussion", "conversation", "exchange"], "ant": ["monologue", "silence", "argument"], "ex": "Great companies encourage open dialogue — even when the message is uncomfortable."}, {"w": 2, "d": 4, "lv": "B1", "word": "conflict", "pos": "n", "ph": "/ˈkɒnflɪkt/", "mn": "Зөрчил", "def": "A serious disagreement or argument.", "syn": ["dispute", "disagreement", "tension"], "ant": ["agreement", "harmony", "cooperation"], "ex": "Great leaders know how to manage conflict — they encourage debate but maintain respect."}, {"w": 2, "d": 4, "lv": "B2", "word": "alignment", "pos": "n", "ph": "/əˈlaɪnmənt/", "mn": "Нийцэл", "def": "The state of being in agreement or in the correct position.", "syn": ["agreement", "consistency", "coordination"], "ant": ["misalignment", "conflict", "contradiction"], "ex": "When values and actions are in alignment, organizations naturally become more effective."}, {"w": 2, "d": 4, "lv": "B1", "word": "workforce", "pos": "n", "ph": "/ˈwɜːrkfɔːrs/", "mn": "Ажиллах хүч", "def": "All the people employed by an organization.", "syn": ["staff", "employees", "personnel"], "ant": ["leadership", "management"], "ex": "Great companies built a workforce that was both talented and deeply committed to the mission."}, {"w": 2, "d": 4, "lv": "B2", "word": "incentive", "pos": "n", "ph": "/ɪnˈsentɪv/", "mn": "Урамшуулал", "def": "Something that motivates a person to act in a certain way.", "syn": ["motivation", "reward", "encouragement"], "ant": ["deterrent", "punishment", "penalty"], "ex": "Great companies aligned incentives with long-term results, not short-term profits."}, {"w": 2, "d": 4, "lv": "B1", "word": "performance review", "pos": "n", "ph": "/pərˈfɔːrməns rɪˈvjuː/", "mn": "Гүйцэтгэлийн үнэлгээ", "def": "A regular evaluation of an employee's work quality.", "syn": ["appraisal", "assessment", "evaluation"], "ant": ["neglect", "ignorance"], "ex": "In great companies, performance reviews were honest and developmental — not just paperwork."}, {"w": 2, "d": 4, "lv": "B2", "word": "turnover", "pos": "n", "ph": "/ˈtɜːrnoʊvər/", "mn": "Ажилтны орлуулалт", "def": "The rate at which employees leave and are replaced.", "syn": ["attrition", "staff change", "churn"], "ant": ["retention", "stability", "loyalty"], "ex": "Low employee turnover was a sign of a great culture — people wanted to stay and grow."}, {"w": 2, "d": 4, "lv": "B1", "word": "onboarding", "pos": "n", "ph": "/ˈɒnbɔːrdɪŋ/", "mn": "Шинэ ажилтан дасан зохицуулах", "def": "The process of integrating new employees into an organization.", "syn": ["training", "orientation", "integration"], "ant": ["dismissal", "offboarding"], "ex": "Great companies invested heavily in onboarding — getting people aligned from day one."}, {"w": 2, "d": 4, "lv": "B2", "word": "empowerment", "pos": "n", "ph": "/ɪmˈpaʊərmənt/", "mn": "Чадваржуулалт", "def": "Giving people authority and confidence to act independently.", "syn": ["enablement", "authorization", "support"], "ant": ["disempowerment", "restriction", "control"], "ex": "Empowerment in great companies meant that any employee could stop a bad process."}, {"w": 2, "d": 4, "lv": "B1", "word": "values", "pos": "n", "ph": "/ˈvæljuːz/", "mn": "Үнэт зүйлс", "def": "Core beliefs that guide behavior and decision-making.", "syn": ["principles", "ethics", "standards"], "ant": ["rules", "laws", "regulations"], "ex": "Great companies hired for values first and skills second."}, {"w": 2, "d": 4, "lv": "B2", "word": "succession", "pos": "n", "ph": "/səkˈseʃən/", "mn": "Залгамжлал", "def": "The process of one person following another in a position.", "syn": ["inheritance", "transition", "replacement"], "ant": ["vacancy", "interruption", "gap"], "ex": "Level 5 leaders planned for succession early — they never let the company depend on one person."}, {"w": 2, "d": 4, "lv": "B1", "word": "mission", "pos": "n", "ph": "/ˈmɪʃən/", "mn": "Эрхэм зорилго", "def": "A statement that explains why an organization exists.", "syn": ["purpose", "aim", "objective"], "ant": ["aimlessness", "confusion", "irrelevance"], "ex": "Great companies had a mission that went beyond making money — people felt part of something bigger."}, {"w": 2, "d": 5, "lv": "B2", "word": "paradox", "pos": "n", "ph": "/ˈpærədɒks/", "mn": "Зөрчилдөөн", "def": "A situation that seems contradictory but reveals a truth.", "syn": ["contradiction", "irony", "anomaly"], "ant": ["consistency", "simplicity", "clarity"], "ex": "Level 5 leadership is a paradox — fierce will and deep humility living in the same person."}, {"w": 2, "d": 5, "lv": "B2", "word": "juxtaposition", "pos": "n", "ph": "/ˌdʒʌkstəpəˈzɪʃən/", "mn": "Эсрэг тавих", "def": "Placing two things side by side to highlight differences.", "syn": ["contrast", "comparison", "opposition"], "ant": ["similarity", "blending", "uniformity"], "ex": "Collins used juxtaposition to show how great leaders differed from celebrity CEOs."}, {"w": 2, "d": 5, "lv": "B2", "word": "analogy", "pos": "n", "ph": "/əˈnælədʒi/", "mn": "Дүйцүүлэл", "def": "A comparison to explain something complex.", "syn": ["comparison", "metaphor", "parallel"], "ant": ["contrast", "difference", "literal explanation"], "ex": "The flywheel is an analogy for how momentum builds in a great company."}, {"w": 2, "d": 5, "lv": "B2", "word": "archetype", "pos": "n", "ph": "/ˈɑːrkɪtaɪp/", "mn": "Загвар, хэв", "def": "A perfect or typical example of something.", "syn": ["model", "prototype", "ideal"], "ant": ["exception", "anomaly", "deviation"], "ex": "Level 5 leaders are the archetype of servant leadership — working for the good of all."}, {"w": 2, "d": 5, "lv": "B2", "word": "bias", "pos": "n", "ph": "/ˈbaɪəs/", "mn": "Таачлал", "def": "An unfair preference or judgment for or against something.", "syn": ["prejudice", "favoritism", "partiality"], "ant": ["objectivity", "fairness", "neutrality"], "ex": "Collins warned researchers to check for confirmation bias when interpreting data."}, {"w": 2, "d": 5, "lv": "B2", "word": "cognitive", "pos": "adj", "ph": "/ˈkɒɡnɪtɪv/", "mn": "Танин мэдэхүйн", "def": "Related to mental processes like thinking and reasoning.", "syn": ["mental", "intellectual", "psychological"], "ant": ["emotional", "physical", "instinctive"], "ex": "Cognitive discipline — controlling your thinking — is essential for Level 5 leadership."}, {"w": 2, "d": 5, "lv": "B2", "word": "intrinsic", "pos": "adj", "ph": "/ɪnˈtrɪnsɪk/", "mn": "Дотоод шинж чанарын", "def": "Belonging naturally to something; essential.", "syn": ["inherent", "natural", "fundamental"], "ant": ["external", "extrinsic", "imposed"], "ex": "Intrinsic motivation — doing something because you love it — is more powerful than external rewards."}, {"w": 2, "d": 5, "lv": "B2", "word": "nuanced", "pos": "adj", "ph": "/ˈnjuːɑːnst/", "mn": "Нарийн ялгаатай", "def": "Showing subtle differences; not simple or obvious.", "syn": ["subtle", "complex", "refined"], "ant": ["simple", "obvious", "black-and-white"], "ex": "Collins gave a nuanced picture of leadership — it is not about personality type, but about inner drive."}, {"w": 2, "d": 5, "lv": "B2", "word": "counterintuitive", "pos": "adj", "ph": "/ˌkaʊntərɪnˈtjuːɪtɪv/", "mn": "Төсөөлөхтэй эсрэг", "def": "The opposite of what most people expect.", "syn": ["surprising", "unexpected", "paradoxical"], "ant": ["expected", "logical", "intuitive"], "ex": "It is counterintuitive that the most effective leaders are often the least famous."}, {"w": 2, "d": 5, "lv": "B2", "word": "longitudinal", "pos": "adj", "ph": "/ˌlɒŋɡɪˈtjuːdɪnəl/", "mn": "Урт хугацааны судалгааны", "def": "Relating to a study conducted over a long period.", "syn": ["long-term", "extended", "ongoing"], "ant": ["cross-sectional", "short-term", "one-time"], "ex": "Collins used longitudinal data — tracking companies over 15 years — to ensure reliable results."}, {"w": 2, "d": 5, "lv": "B2", "word": "qualitative", "pos": "adj", "ph": "/ˈkwɒlɪtətɪv/", "mn": "Чанарын", "def": "Relating to quality and descriptions rather than numbers.", "syn": ["descriptive", "subjective", "interpretive"], "ant": ["quantitative", "numerical", "statistical"], "ex": "The research combined qualitative stories with quantitative data for a complete picture."}, {"w": 2, "d": 5, "lv": "B2", "word": "quantitative", "pos": "adj", "ph": "/ˈkwɒntɪtətɪv/", "mn": "Тоон", "def": "Relating to quantity and measurement.", "syn": ["numerical", "statistical", "measurable"], "ant": ["qualitative", "descriptive", "subjective"], "ex": "Stock performance was the quantitative measure used to identify great companies."}, {"w": 2, "d": 5, "lv": "B2", "word": "retrospective", "pos": "adj", "ph": "/ˌretrəˈspektɪv/", "mn": "Өнгөрсөнд харсан", "def": "Looking back at past events.", "syn": ["backward-looking", "historical", "past-focused"], "ant": ["prospective", "forward-looking", "future-focused"], "ex": "A retrospective analysis of 40 years of data gave Collins strong evidence for his conclusions."}, {"w": 2, "d": 5, "lv": "B2", "word": "leverage", "pos": "n", "ph": "/ˈlevərɪdʒ/", "mn": "Хөшүүрэг", "def": "Using something as an advantage to achieve more.", "syn": ["advantage", "power", "influence"], "ant": ["weakness", "disadvantage", "limitation"], "ex": "Great leaders leverage their team's strengths instead of trying to fix their weaknesses."}, {"w": 2, "d": 5, "lv": "B2", "word": "catalyst", "pos": "n", "ph": "/ˈkætəlɪst/", "mn": "Өдөөгч", "def": "Something that causes or speeds up change.", "syn": ["trigger", "spark", "driver"], "ant": ["obstacle", "barrier", "hindrance"], "ex": "A new CEO with Level 5 qualities often acts as a catalyst for dramatic organizational change."}, {"w": 2, "d": 5, "lv": "B2", "word": "trajectory", "pos": "n", "ph": "/trəˈdʒektəri/", "mn": "Зам", "def": "The path or direction something takes over time.", "syn": ["path", "direction", "course"], "ant": ["stagnation", "randomness", "stillness"], "ex": "The trajectory of a good-to-great company shows a slow start, then a dramatic upward turn."}, {"w": 2, "d": 5, "lv": "B2", "word": "disposition", "pos": "n", "ph": "/ˌdɪspəˈzɪʃən/", "mn": "Зан байдал", "def": "A person's natural attitude or tendency.", "syn": ["tendency", "nature", "temperament"], "ant": ["behavior", "action", "decision"], "ex": "Level 5 leaders had a natural disposition to serve others rather than themselves."}, {"w": 2, "d": 5, "lv": "B2", "word": "dichotomy", "pos": "n", "ph": "/daɪˈkɒtəmi/", "mn": "Хоёрдмол байдал", "def": "A division into two opposite categories.", "syn": ["contrast", "opposition", "divide"], "ant": ["unity", "blend", "continuum"], "ex": "The Level 5 dichotomy — humility plus fierce will — is the paradox at the heart of great leadership."}, {"w": 2, "d": 5, "lv": "B2", "word": "delineate", "pos": "v", "ph": "/dɪˈlɪnieɪt/", "mn": "Тодорхой зааглах", "def": "To describe or show something precisely.", "syn": ["define", "describe", "outline"], "ant": ["blur", "confuse", "generalize"], "ex": "Collins delineated five levels of leadership so clearly that any manager could self-assess."}, {"w": 2, "d": 5, "lv": "B2", "word": "manifest", "pos": "v", "ph": "/ˈmænɪfest/", "mn": "Илрэх", "def": "To appear or become clear.", "syn": ["show", "appear", "display"], "ant": ["hide", "conceal", "suppress"], "ex": "Level 5 leadership qualities manifest gradually — they are built through practice, not personality."}, {"w": 2, "d": 5, "lv": "B2", "word": "substantiate", "pos": "v", "ph": "/səbˈstænʃieɪt/", "mn": "Нотлох", "def": "To provide evidence to prove something is true.", "syn": ["prove", "confirm", "verify"], "ant": ["disprove", "refute", "undermine"], "ex": "Every claim in the book is substantiated by specific company examples and data."}, {"w": 2, "d": 5, "lv": "B2", "word": "integrate", "pos": "v", "ph": "/ˈɪntɪɡreɪt/", "mn": "Нэгтгэх", "def": "To combine parts into a unified whole.", "syn": ["combine", "merge", "unify"], "ant": ["separate", "divide", "fragment"], "ex": "Great companies integrate individual talent into a collective system that outlasts any one person."}];
+
+const TEST_DATA = {"w1": [{"word": "discipline", "blank": "Every great company showed incredible ___ — they never chased quick wins.", "answer": "discipline"}, {"word": "momentum", "blank": "Once the flywheel started turning, results began to ___ dramatically.", "answerVerb": "accelerate", "blank2": "The flywheel builds ___, but once moving, it becomes unstoppable.", "answer": "momentum"}, {"word": "transformation", "blank": "The ___ from good to great took an average of four years.", "answer": "transformation"}, {"word": "consistent", "blank": "Great companies were ___ in their actions for years before results showed.", "answer": "consistent"}, {"word": "sustainable", "blank": "The goal was to build a ___ organization that would outlast any one leader.", "answer": "sustainable"}, {"word": "eliminate", "blank": "Great leaders had to ___ activities that did not fit their core focus.", "answer": "eliminate"}], "w2": [{"word": "humility", "blank": "Level 5 leaders showed deep ___ — they credited their teams, not themselves.", "answer": "humility"}, {"word": "accountability", "blank": "Level 5 leaders took full ___ for failures — they never blamed the market.", "answer": "accountability"}, {"word": "paradox", "blank": "Level 5 leadership is a ___ — fierce will and deep humility in one person.", "answer": "paradox"}, {"word": "authentic", "blank": "___ leaders are the same person in public and in private.", "answer": "Authentic"}, {"word": "resilience", "blank": "Level 5 leaders showed ___ — they stayed calm and focused during crises.", "answer": "resilience"}, {"word": "cultivate", "blank": "Level 5 leaders ___ a culture where people feel safe to speak their mind.", "answer": "cultivate"}]};
+
+const WEEKS = [{id:0,label:"All"},{id:1,label:"Week 1 · Ch.1"},{id:2,label:"Week 2 · Ch.2"}];
+let activeWeek = 2, activeDay = 5;
+let deck=[], cur=0, isFlipped=false, known=new Set(), again=new Set(), autoplay=false, hardOnly=false;
+
+// ── TAB BUILDING ──────────────────────────────
+function buildWeekTabs(){
+  const wt=document.getElementById('weekTabs');wt.innerHTML='';
+  WEEKS.forEach(w=>{
+    const b=document.createElement('button');
+    b.className='wtab'+(w.id===activeWeek?' active':'');
+    b.textContent=w.label;
+    b.onclick=()=>{activeWeek=w.id;activeDay=(w.id===0?0:5);buildDayTabs();setDay(activeDay);};
+    wt.appendChild(b);
+  });
+}
+function buildDayTabs(){
+  const dt=document.getElementById('dayTabs');dt.innerHTML='';
+  document.querySelectorAll('.wtab').forEach((b,i)=>b.classList.toggle('active',WEEKS[i].id===activeWeek));
+  if(activeWeek===0){
+    ['All','D1','D2','D3','D4','D5'].forEach((lbl,i)=>{
+      const b=document.createElement('button');
+      b.className='dtab'+(i===activeDay?' active':'');
+      b.textContent=lbl;b.onclick=()=>{activeDay=i;buildDayTabs();setDay(i);};
+      dt.appendChild(b);
+    });
+    return;
+  }
+  const labels=['All Days','Day 1','Day 2','Day 3','Day 4','Day 5','📖 Review','📝 Test'];
+  labels.forEach((lbl,i)=>{
+    const b=document.createElement('button');
+    let cls='dtab';
+    if(i===6)cls+=' review';
+    if(i===7)cls+=' test';
+    if(i===activeDay)cls+=' active';
+    b.className=cls;b.textContent=lbl;b.onclick=()=>{activeDay=i;buildDayTabs();setDay(i);};
+    dt.appendChild(b);
+  });
+}
+function setDay(d){
+  activeDay=d;buildDayTabs();
+  document.getElementById('mainStage').style.display='none';
+  document.getElementById('doneScreen').classList.remove('show');
+  document.getElementById('reviewPanel').style.display='none';
+  document.getElementById('testPanel').style.display='none';
+  document.getElementById('modePill').textContent='Flashcards';
+  document.getElementById('sScore').style.display='none';
+  document.getElementById('sScoreLbl').style.display='none';
+  if(d===6){showReview();return;}
+  if(d===7){showTest();return;}
+  initDeck();
+}
+
+// ── FLASHCARD ─────────────────────────────────
+function initDeck(){
+  document.getElementById('mainStage').style.display='flex';
+  document.getElementById('doneScreen').classList.remove('show');
+  let pool=ALL_CARDS;
+  if(activeWeek!==0)pool=pool.filter(c=>c.w===activeWeek);
+  if(activeDay!==0)pool=pool.filter(c=>c.d===activeDay);
+  if(hardOnly){const h=pool.filter(c=>again.has(c.word));if(h.length)pool=h;else{hardOnly=false;document.getElementById('hardBtn').classList.remove('active');}}
+  deck=[...pool];cur=0;isFlipped=false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  updateStats();renderCard();
+}
+function renderCard(){
+  if(!deck.length)return;
+  const c=deck[cur];isFlipped=false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  const dc=['d1c','d2c','d3c','d4c','d5c'][c.d-1]||'d1c';
+  document.getElementById('fBadges').innerHTML=`<span class="level-badge lv-${c.lv}">${c.lv}</span><span class="day-badge ${dc}">Wk${c.w}·D${c.d}</span><span class="pos-badge">${c.pos}</span>`;
+  document.getElementById('fWord').textContent=c.word;
+  document.getElementById('fPhon').textContent=c.ph;
+  document.getElementById('fSyn').innerHTML=c.syn.map(s=>`<span class="syn-chip">${s}</span>`).join('');
+  document.getElementById('bDef').textContent=c.def;
+  document.getElementById('bSyn').innerHTML=c.syn.map(s=>`<span class="b-chip syn-chip-b">${s}</span>`).join('');
+  document.getElementById('bAnt').innerHTML=c.ant.map(s=>`<span class="b-chip ant-chip-b">${s}</span>`).join('');
+  const exHL=c.ex.split(new RegExp('(?<![a-z])'+c.word.toLowerCase()+'(?![a-z])','i')).join(`<em>${c.word}</em>`);
+  document.getElementById('bEx').innerHTML=exHL;
+  const pct=deck.length>1?Math.round(cur/(deck.length-1)*100):100;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progText').textContent=`${cur+1} / ${deck.length}`;
+
+}
+function flipCard(){isFlipped=!isFlipped;document.getElementById('cardInner').classList.toggle('flipped',isFlipped);}
+function navCard(dir){cur=Math.max(0,Math.min(deck.length-1,cur+dir));renderCard();}
+function markKnown(){const w=deck[cur].word;known.add(w);again.delete(w);updateStats();if(cur<deck.length-1){cur++;renderCard();}else showDone();}
+function markAgain(){const w=deck[cur].word;again.add(w);known.delete(w);updateStats();if(cur<deck.length-1){cur++;renderCard();}else showDone();}
+function updateStats(){document.getElementById('sKnown').textContent=known.size;document.getElementById('sTotal').textContent=deck.length;document.getElementById('sAgain').textContent=again.size;}
+function showDone(){
+  document.getElementById('mainStage').style.display='none';
+  document.getElementById('doneScreen').classList.add('show');
+  document.getElementById('dKnown').textContent=known.size;
+  document.getElementById('dTotal').textContent=deck.length;
+  document.getElementById('dAgain').textContent=again.size;
+  const wl=WEEKS.find(w=>w.id===activeWeek)?.label||'All';
+  document.getElementById('doneSub').textContent=wl+(activeDay?' · Day '+activeDay:'')+' · Complete';
+}
+function restart(){document.getElementById('doneScreen').classList.remove('show');initDeck();}
+function restartHard(){
+  let pool=ALL_CARDS;if(activeWeek)pool=pool.filter(c=>c.w===activeWeek);if(activeDay)pool=pool.filter(c=>c.d===activeDay);
+  const h=pool.filter(c=>again.has(c.word));
+  if(!h.length){restart();return;}
+  deck=h;cur=0;isFlipped=false;
+  document.getElementById('mainStage').style.display='flex';document.getElementById('doneScreen').classList.remove('show');
+  renderCard();updateStats();
+}
+function shuffleCards(){for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}cur=0;renderCard();}
+function toggleHard(){hardOnly=!hardOnly;document.getElementById('hardBtn').classList.toggle('active',hardOnly);initDeck();}
+
+document.addEventListener('keydown',e=>{
+  if(activeDay===6||activeDay===7)return;
+  if(e.key==='ArrowRight'||e.key==='l')navCard(1);
+  if(e.key==='ArrowLeft'||e.key==='h')navCard(-1);
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();flipCard();}
+  if(e.key==='k')markKnown();if(e.key==='a')markAgain();
+});
+
+// ── REVIEW ───────────────────────────────────
+function showReview(){
+  document.getElementById('modePill').textContent='Review';
+  const panel=document.getElementById('reviewPanel');panel.style.display='flex';
+  const week=activeWeek||1;
+  let pool=ALL_CARDS.filter(c=>c.w===week);
+  document.getElementById('reviewSub').textContent=`${pool.length} words from ${WEEKS.find(w=>w.id===week)?.label||'Week '+week} — tap to expand`;
+  const grid=document.getElementById('reviewGrid');grid.innerHTML='';
+  pool.forEach(c=>{
+    const card=document.createElement('div');card.className='rv-card';
+    const dc=['d1c','d2c','d3c','d4c','d5c'][c.d-1]||'d1c';
+    const lvColor=c.lv==='B2'?'background:rgba(112,48,176,.15);color:#b080e0':'background:rgba(32,96,192,.12);color:#80a8e0';
+    card.innerHTML=`
+      <div>
+        <div class="rv-badges"><span class="rv-lv" style="${lvColor}">${c.lv}</span><span class="rv-lv" style="background:rgba(255,255,255,.07);color:var(--muted)">D${c.d} ${c.pos}</span></div>
+        <div class="rv-word">${c.word}</div>
+        <div style="font-size:11px;color:var(--muted);font-style:italic">${c.ph}</div>
+      </div>
+      <div class="rv-right">
+        
+        <div class="rv-def">${c.def}</div>
+        <div class="rv-ex">${c.ex}</div>
+      </div>`;
+    card.onclick=()=>card.classList.toggle('expanded');
+    grid.appendChild(card);
+  });
+}
+
+// ── TEST ─────────────────────────────────────
+let matchSelWord=null, matchSelDef=null, matchPairs={};
+function showTest(){
+  document.getElementById('modePill').textContent='Test';
+  document.getElementById('sScore').style.display='';
+  document.getElementById('sScoreLbl').style.display='';
+  const panel=document.getElementById('testPanel');panel.style.display='flex';
+  const week=activeWeek||1;
+  const data=TEST_DATA['w'+week];
+  document.getElementById('testWeekLabel').textContent=(week===1?'Week 1 · Chapter 1: Good is the Enemy of Great':'Week 2 · Chapter 2: Level 5 Leadership');
+  // reset scores
+  ['scoreP1','scoreP2','scoreP3','scoreTotal'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('sScore').textContent='—';
+  buildMatch(data);buildFill(data);buildWrite(data);
+}
+
+// Part 1 - Matching (use first 8 words)
+function buildMatch(data){
+  const items=data.slice(0,8);
+  matchPairs={};matchSelWord=null;matchSelDef=null;
+  const wCol=document.getElementById('matchWords');wCol.innerHTML='';
+  const dCol=document.getElementById('matchDefs');dCol.innerHTML='';
+  const shuffled=[...items].sort(()=>Math.random()-.5);
+  items.forEach(item=>{
+    const wb=document.createElement('div');wb.className='match-word';wb.textContent=item.word;wb.dataset.word=item.word;
+    wb.onclick=()=>selectMatchWord(wb);wCol.appendChild(wb);
+  });
+  shuffled.forEach(item=>{
+    const card=ALL_CARDS.find(c=>c.word===item.word);
+    const def=card?card.def.slice(0,60)+'…':'—';
+    const db=document.createElement('div');db.className='match-def';db.textContent=def;db.dataset.word=item.word;
+    db.onclick=()=>selectMatchDef(db);dCol.appendChild(db);
+  });
+}
+function selectMatchWord(el){
+  if(el.classList.contains('matched-ok'))return;
+  document.querySelectorAll('.match-word').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');matchSelWord=el;
+  if(matchSelDef)tryMatch();
+}
+function selectMatchDef(el){
+  if(el.classList.contains('matched-ok'))return;
+  document.querySelectorAll('.match-def').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');matchSelDef=el;
+  if(matchSelWord)tryMatch();
+}
+function tryMatch(){
+  const w=matchSelWord.dataset.word;const d=matchSelDef.dataset.word;
+  matchPairs[w]=d;matchSelWord=null;matchSelDef=null;
+  document.querySelectorAll('.match-word,.match-def').forEach(b=>b.classList.remove('selected'));
+}
+function checkMatch(){
+  let score=0;
+  document.querySelectorAll('.match-word').forEach(wb=>{
+    const w=wb.dataset.word;const paired=matchPairs[w];
+    if(paired===w){wb.classList.add('matched-ok');document.querySelector(`.match-def[data-word="${w}"]`)?.classList.add('matched-ok');score+=2.5;}
+    else if(paired){wb.classList.add('matched-err');document.querySelector(`.match-def[data-word="${paired}"]`)?.classList.add('matched-err');}
+  });
+  const s=Math.round(score);document.getElementById('scoreP1').textContent=s+'/20';
+  calcTotal();
+}
+function resetMatch(){
+  matchPairs={};matchSelWord=null;matchSelDef=null;
+  document.querySelectorAll('.match-word,.match-def').forEach(b=>{b.classList.remove('selected','matched-ok','matched-err');});
+  document.getElementById('scoreP1').textContent='—';calcTotal();
+}
+
+// Part 2 - Fill in blank
+function buildFill(data){
+  const items=data.slice(0,6);
+  const div=document.getElementById('fillItems');div.innerHTML='';
+  items.forEach((item,i)=>{
+    const card=ALL_CARDS.find(c=>c.word===item.word);
+    const sentence=item.blank;
+    const display=sentence.replace('___','<strong>___</strong>');
+    div.innerHTML+=`
+      <div class="fill-item">
+        <div class="fill-q">${display}</div>
+        <input class="fill-input" id="fi${i}" placeholder="Type the missing word…" autocomplete="off" autocorrect="off" spellcheck="false" data-answer="${item.answer.toLowerCase()}">
+        <div class="fill-feedback" id="ff${i}"></div>
+      </div>`;
+  });
+}
+function checkFill(){
+  let score=0;const total=document.querySelectorAll('.fill-item').length;
+  for(let i=0;i<total;i++){
+    const inp=document.getElementById('fi'+i);const fb=document.getElementById('ff'+i);
+    const val=inp.value.trim().toLowerCase();const ans=inp.dataset.answer;
+    if(val===ans||val.replace(/[^a-z]/g,'')===ans.replace(/[^a-z]/g,'')){
+      inp.classList.add('ok');inp.classList.remove('err');
+      fb.className='fill-feedback ok';fb.textContent='✓ Correct!';score+=Math.round(20/total);
+    }else{
+      inp.classList.add('err');inp.classList.remove('ok');
+      fb.className='fill-feedback err';fb.textContent=`✗ Answer: "${ans}"`;
+    }
+  }
+  document.getElementById('scoreP2').textContent=score+'/20';calcTotal();
+}
+function resetFill(){
+  document.querySelectorAll('.fill-input').forEach(i=>{i.value='';i.classList.remove('ok','err');});
+  document.querySelectorAll('[id^="ff"]').forEach(f=>f.textContent='');
+  document.getElementById('scoreP2').textContent='—';calcTotal();
+}
+
+// Part 3 - Sentence writing
+const WRITE_WORDS_W1=['discipline','momentum','transformation','consistent'];
+const WRITE_WORDS_W2=['humility','paradox','resilience','authentic'];
+function buildWrite(data){
+  const week=activeWeek||1;
+  const words=week===1?WRITE_WORDS_W1:WRITE_WORDS_W2;
+  const div=document.getElementById('writeItems');div.innerHTML='';
+  words.forEach((w,i)=>{
+    const card=ALL_CARDS.find(c=>c.word===w);
+    if(!card)return;
+    div.innerHTML+=`
+      <div class="write-item">
+        <div class="write-prompt">
+          <span class="write-word">${card.word}</span>
+          <span class="write-def">${card.pos}</span>
+        </div>
+        <textarea class="write-input" id="wi${i}" placeholder="Write a sentence using '${card.word}'…" rows="2"></textarea>
+        <div class="write-check" id="wc${i}">
+          <div class="wc-ok">✓ Submitted! Model example:</div>
+          <div class="wc-tip">"${card.ex}"</div>
+        </div>
+      </div>`;
+  });
+}
+function checkWrite(){
+  const week=activeWeek||1;
+  const words=week===1?WRITE_WORDS_W1:WRITE_WORDS_W2;
+  let scored=0;
+  words.forEach((w,i)=>{
+    const inp=document.getElementById('wi'+i);
+    const chk=document.getElementById('wc'+i);
+    if(inp&&inp.value.trim().length>5){
+      chk.classList.add('show');scored++;
+    }else if(inp){
+      inp.style.borderColor='var(--rose)';
+    }
+  });
+  const pts=Math.round((scored/words.length)*20);
+  document.getElementById('scoreP3').textContent=pts+'/20';calcTotal();
+}
+function resetWrite(){
+  document.querySelectorAll('.write-input').forEach(i=>{i.value='';i.style.borderColor='';});
+  document.querySelectorAll('[id^="wc"]').forEach(c=>c.classList.remove('show'));
+  document.getElementById('scoreP3').textContent='—';calcTotal();
+}
+function calcTotal(){
+  const vals=[document.getElementById('scoreP1'),document.getElementById('scoreP2'),document.getElementById('scoreP3')]
+    .map(el=>el.textContent).map(t=>parseInt(t)||0);
+  const total=vals.reduce((a,b)=>a+b,0);
+  const allSet=[document.getElementById('scoreP1'),document.getElementById('scoreP2'),document.getElementById('scoreP3')]
+    .every(el=>el.textContent!=='—');
+  if(allSet){
+    document.getElementById('scoreTotal').textContent=total+'/60';
+    document.getElementById('sScore').textContent=total+'/60';
+  }
+}
+
+// ── INIT ─────────────────────────────────────
+buildWeekTabs();buildDayTabs();initDeck();
+</script>
+</body>
+</html>
