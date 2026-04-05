@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OctoLearn · C1 Day 4</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amber:#E8A020; --navy:#0c1927; --navy2:#162436; --navy3:#1e3050;
+  --purple:#7c4dff; --purple-soft:#ede8ff;
+  --green:#18a062; --green-soft:#e6f5ee;
+  --blue:#1a6fc4;
+  --off:#f2f4f8; --border:#dde4ef; --text:#18283a; --muted:#6a7f96;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text);}
+
+/* HEADER */
+.hdr{background:var(--navy);border-bottom:3px solid var(--amber);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.hdr-title{font-family:'DM Serif Display',serif;font-size:1.15rem;color:var(--amber);}
+.hdr-sub{font-size:.68rem;color:#6a90b0;margin-top:2px;letter-spacing:.04em;text-transform:uppercase;}
+.badge{background:var(--amber);color:var(--navy);font-size:.65rem;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.08em;}
+
+/* TIMER — single 5min */
+.timer-bar{background:var(--navy2);border-bottom:1px solid var(--navy3);padding:10px 18px;display:flex;align-items:center;gap:12px;}
+.tnum{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--amber);min-width:80px;transition:color .3s;letter-spacing:.02em;}
+.tnum.go{color:#36d476;}
+.tnum.warn{color:#ff9800;animation:blink 1s infinite;}
+.tnum.done{color:#ff4444;animation:blink .4s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tbtn{padding:8px 18px;border:none;border-radius:7px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.tbtn-go{background:var(--green);color:#fff;}
+.tbtn-reset{background:var(--navy3);color:#8aa0b8;}
+.tbtn:hover{filter:brightness(1.12);transform:scale(1.03);}
+.timer-label{font-size:.72rem;color:#5a7090;font-family:'DM Sans',sans-serif;}
+
+/* TABS */
+.tabs{background:var(--navy2);border-bottom:2px solid var(--navy3);padding:0 12px;display:flex;flex-wrap:wrap;gap:1px;}
+.tab{padding:10px 14px;border:none;background:transparent;color:#6a90b0;font-size:.75rem;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;white-space:nowrap;}
+.tab:hover{color:var(--amber);} .tab.on{color:var(--amber);border-bottom-color:var(--amber);}
+.tab.p2{color:#b39dff;} .tab.p2.on{color:#b39dff;border-bottom-color:var(--purple);}
+
+/* CONTENT */
+.content{background:var(--off);min-height:calc(100vh - 120px);padding:22px 18px;}
+.panel{display:none;animation:fadein .25s ease;} .panel.on{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* SECTION BLOCKS */
+.section{border-radius:12px;margin-bottom:16px;overflow:hidden;border:2px solid transparent;}
+.section.amber{border-color:#f0c060;}
+.section.green{border-color:#6dd4a4;}
+.section.blue{border-color:#90b8f0;}
+.sec-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;font-weight:700;font-size:.88rem;}
+.section.amber .sec-hdr{background:linear-gradient(90deg,#fff8e8,#fff3d0);color:#7a4a00;border-bottom:1px solid #f0c060;}
+.section.green .sec-hdr{background:linear-gradient(90deg,#edf9f3,#d8f4e8);color:#0a5030;border-bottom:1px solid #6dd4a4;}
+.section.blue .sec-hdr{background:linear-gradient(90deg,#eaf1ff,#d8e8ff);color:#103080;border-bottom:1px solid #90b8f0;}
+.sec-body{background:#fff;padding:16px 18px;}
+.sec-title{flex:1;} .sec-time{font-size:.7rem;font-weight:600;opacity:.7;margin-left:auto;}
+
+/* OUTLINE STEPS */
+.steps{display:flex;flex-direction:column;}
+.step{display:flex;align-items:stretch;}
+.step-line{display:flex;flex-direction:column;align-items:center;width:40px;flex-shrink:0;}
+.step-dot{width:20px;height:20px;border-radius:50%;background:var(--amber);color:var(--navy);font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-dot.grn{background:var(--green);color:#fff;}
+.step-connector{width:2px;background:#e0e8f0;flex:1;margin:3px 0;}
+.step-content{flex:1;padding:0 0 18px 12px;}
+.step-time{font-size:.65rem;font-weight:700;color:var(--amber);letter-spacing:.06em;text-transform:uppercase;}
+.step-time.grn{color:var(--green);}
+.step-label{font-size:.95rem;font-weight:700;color:var(--navy);margin:2px 0;}
+.step-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.step-badge{display:inline-block;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:4px;}
+.sb-input{background:#ede8ff;color:var(--purple);} .sb-output{background:#fef3e0;color:#b07010;} .sb-listen{background:#e6f5ee;color:var(--green);}
+
+/* QUESTION ITEMS */
+.q-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;margin-bottom:9px;border-radius:10px;border:1.5px solid var(--border);background:#fafbfc;transition:all .18s;cursor:default;}
+.q-item:hover{border-color:var(--amber);background:#fff8ee;}
+.q-item.grn:hover{border-color:var(--green);background:#f0faf5;}
+.q-num{width:26px;height:26px;border-radius:50%;background:var(--navy);color:var(--amber);font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.q-item.grn .q-num{background:var(--green);color:#fff;}
+.q-text{flex:1;font-size:.9rem;line-height:1.6;font-weight:500;}
+
+/* OPTION BOXES — for push-for hints */
+.opt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:12px;}
+.opt-box{
+  background:#fff;border:2px solid var(--border);border-radius:10px;
+  padding:11px 14px;font-size:.92rem;font-weight:600;color:var(--navy);
+  line-height:1.4;text-align:center;
+  transition:all .15s;cursor:default;
+}
+.opt-box:hover{border-color:var(--amber);background:#fff8ee;transform:translateY(-1px);box-shadow:0 3px 10px rgba(232,160,32,.15);}
+.opt-box.grn{border-color:#a8dfc0;color:#0a5030;}
+.opt-box.grn:hover{border-color:var(--green);background:#edf9f3;box-shadow:0 3px 10px rgba(24,160,98,.15);}
+.opt-label{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+
+/* STUDENT ACCORDION */
+.s-card{background:#fff;border-radius:12px;border:2px solid var(--border);margin-bottom:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+.s-card.backup{border-style:dashed;opacity:.72;}
+.s-hdr{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;transition:background .15s;border-left:5px solid var(--amber);}
+.s-hdr:hover{background:#fef9f0;}
+.s-hdr.gray-bar{border-left-color:var(--muted);}
+.s-num{width:36px;height:36px;border-radius:50%;background:var(--navy);color:var(--amber);font-family:'DM Serif Display',serif;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.s-num.gray{background:var(--muted);}
+.s-info{flex:1;}
+.s-label{font-size:.63rem;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+.s-topic{font-size:.92rem;font-weight:700;color:var(--navy);margin-top:2px;}
+.s-arrow{color:var(--muted);font-size:1rem;transition:transform .2s;flex-shrink:0;}
+.s-arrow.open{transform:rotate(180deg);}
+.s-body{display:none;border-top:2px solid var(--border);}
+.s-body.open{display:block;}
+
+/* INSIDE STUDENT */
+.sb-section{padding:15px 18px;border-bottom:1px solid #f0f0f0;}
+.sb-section:last-child{border-bottom:none;}
+.sb-hdr{font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
+.sb-hdr.amber{color:#a06000;} .sb-hdr.green{color:var(--green);} .sb-hdr.blue{color:var(--blue);}
+
+/* THESIS */
+.thesis-box{background:linear-gradient(135deg,var(--navy),#1a3050);color:#fff;border-radius:10px;padding:15px 17px;font-size:.9rem;line-height:1.7;border-left:4px solid var(--amber);}
+
+/* FROM CHAPTER */
+.from-box{background:var(--green-soft);border-radius:10px;padding:13px 15px;border-left:4px solid var(--green);font-size:.84rem;line-height:1.65;color:#1a3a28;}
+
+/* UNIFIED LANG BOX — both sections same style (frame-row format) */
+.lang-box{background:#f7f9ff;border-radius:10px;border:2px solid #c8d8f8;overflow:hidden;}
+.lang-box-hdr{padding:9px 15px;font-size:.62rem;font-weight:800;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #c8d8f8;background:#e8f0ff;}
+.link-box{background:#fdf6ff;border-radius:10px;border:2px solid #d8b8f0;overflow:hidden;margin-top:10px;}
+.link-box-hdr{padding:9px 15px;font-size:.62rem;font-weight:800;color:#6020a0;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid #d8b8f0;background:#f0e4ff;}
+.link-box-body{padding:10px 15px;}
+.link-row{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-bottom:1px solid #e8d8f8;}
+.link-row:last-child{border-bottom:none;}
+.link-word{font-size:.88rem;font-weight:700;color:#4a0090;min-width:130px;flex-shrink:0;}
+.link-use{font-size:.78rem;color:var(--muted);}
+.lang-box-body{padding:10px 15px;}
+.frame-row{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid #d8e4f8;}
+.frame-row:last-child{border-bottom:none;}
+.frame-num{font-size:.7rem;font-weight:800;color:var(--blue);min-width:20px;flex-shrink:0;}
+.frame-phrase{font-size:.88rem;font-weight:700;color:var(--navy);}
+.frame-hint{font-size:.75rem;color:var(--muted);margin-left:6px;}
+
+/* WARM-UP */
+.warmup-box{background:linear-gradient(135deg,#0c2a14,#1a4a28);border-radius:10px;padding:18px 20px;color:#fff;margin-bottom:14px;border:2px solid #3a8050;}
+.warmup-box .wlbl{font-size:.65rem;font-weight:800;color:#6dd4a4;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.warmup-box .wq{font-size:1.05rem;font-weight:700;color:#fff;line-height:1.5;}
+.warmup-box .wnote{font-size:.8rem;color:#90c8a8;margin-top:8px;}
+
+/* HOW STUDENTS ANSWER */
+.how-box{background:linear-gradient(135deg,#0c1927,#1a3050);border-radius:10px;padding:16px 18px;margin-bottom:14px;border:1px solid var(--navy3);}
+.how-box .hlbl{font-size:.65rem;font-weight:800;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;}
+.how-row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #1e3050;}
+.how-row:last-child{border-bottom:none;}
+.how-n{width:22px;height:22px;border-radius:50%;background:var(--amber);color:var(--navy);font-size:.68rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.how-t{font-size:.86rem;color:#c8e0f8;line-height:1.5;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0c1927,#1a3050);border-radius:12px;padding:20px 22px;color:#fff;margin-bottom:16px;border:1px solid var(--navy3);}
+.hero h3{font-family:'DM Serif Display',serif;color:var(--amber);font-size:1.1rem;margin-bottom:8px;}
+.hero p{font-size:.85rem;line-height:1.7;color:#90b8d8;}
+.hero p b{color:#fff;}
+
+/* SPEAKING FRAME TAB */
+.frame-step{display:flex;gap:14px;align-items:flex-start;padding:11px 14px;margin-bottom:9px;border-radius:10px;background:#fff;border:2px solid var(--border);transition:border-color .15s;}
+.frame-step:hover{border-color:var(--amber);}
+.frame-num-big{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--amber);font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.frame-phrase-big{font-size:.95rem;font-weight:700;color:var(--navy);}
+.frame-hint-big{font-size:.78rem;color:var(--muted);margin-top:3px;}
+
+/* SOS */
+.sos-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.sos-item{background:#fff;border-radius:10px;padding:16px;border:1.5px solid var(--border);border-left:4px solid var(--amber);}
+.sos-item.pur{border-left-color:var(--purple);}
+.sos-item h4{font-size:.8rem;font-weight:700;margin-bottom:6px;color:var(--navy);}
+.sos-item p{font-size:.82rem;line-height:1.5;color:#445;}
+
+@media(max-width:600px){
+  .sos-grid{grid-template-columns:1fr;}
+  .content{padding:14px 10px;}
+  .tab{padding:9px 9px;font-size:.7rem;}
+  .tnum{font-size:1.5rem;}
+  .opt-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-title">OctoLearn · C1 Level</div>
+    <div class="hdr-sub">[Class #] · [Date] · Grammar + Book Discussion</div>
+  </div>
+  <div class="badge">C1 CLASS</div>
+</div>
+
+<!-- SINGLE TIMER -->
+<div class="timer-bar">
+  <div class="tnum" id="tnum">5:00</div>
+  <button class="tbtn tbtn-go" id="btnGo" onclick="timerToggle()">Start</button>
+  <button class="tbtn tbtn-reset" onclick="timerReset()">Reset</button>
+  <span class="timer-label">5 minute timer</span>
+</div>
+
+<div class="tabs">
+  <button class="tab on"  onclick="showTab('outline',this)">Outline</button>
+  <button class="tab"     onclick="showTab('part1',this)">Part 1 — Grammar</button>
+  <button class="tab p2"  onclick="showTab('part2',this)">Part 2 — G2G</button>
+  <button class="tab p2"  onclick="showTab('frame',this)">Speaking Frame</button>
+  <button class="tab"     onclick="showTab('close',this)">Close</button>
+  <button class="tab"     onclick="showTab('sos',this)">SOS</button>
+</div>
+
+<div class="content">
+
+<!-- OUTLINE -->
+<div class="panel on" id="tab-outline">
+  <div class="hero">
+    <h3>Session Overview</h3>
+    <p><b>Total: 70 minutes</b> · 10–12 students · C1 Level<br>
+    Part 1: Grammar (10 min) · Part 2: Book Discussion Speaking (60 min)</p>
+  </div>
+  <div class="section amber">
+    <div class="sec-hdr"><span class="sec-title">Full Session Timeline</span></div>
+    <div class="sec-body">
+      <div class="steps">
+        <div class="step">
+          <div class="step-line"><div class="step-dot">1</div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-time">Part 1 · 0–5 min</div>
+            <div class="step-label">Podcast Listen</div>
+            <div class="step-desc">Play 5 minutes of podcast. Students listen actively.</div>
+            <span class="step-badge sb-listen">LISTEN</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-line"><div class="step-dot">2</div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-time">Part 1 · 5–10 min</div>
+            <div class="step-label">Grammar Input</div>
+            <div class="step-desc">[Grammar input — explanation, examples, quick student practice]</div>
+            <span class="step-badge sb-input">DISCUSS</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-line"><div class="step-dot grn">3</div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-time grn">Part 2 · 10–15 min</div>
+            <div class="step-label">Warm-Up — Good to Great</div>
+            <div class="step-desc">[Warm-up question for this chapter] — whole class, 2–3 quick answers.</div>
+            <span class="step-badge sb-output">OUTPUT</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-line"><div class="step-dot grn">4</div><div class="step-connector"></div></div>
+          <div class="step-content">
+            <div class="step-time grn">Part 2 · 15–65 min</div>
+            <div class="step-label">Main Discussion — 10 Students × 5 min</div>
+            <div class="step-desc">1 thesis question per student. Student speaks → teacher asks follow-up → next student.</div>
+            <span class="step-badge sb-output">SPEAKING</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-line"><div class="step-dot grn">5</div></div>
+          <div class="step-content">
+            <div class="step-time grn">Part 2 · 65–70 min</div>
+            <div class="step-label">Final Reflection</div>
+            <div class="step-desc">"Which idea from this chapter is most useful for life, study, or work?" — one sentence each.</div>
+            <span class="step-badge sb-output">REFLECT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PART 1 -->
+<div class="panel" id="tab-part1">
+  <div class="hero">
+    <h3>Part 1 — Grammar (10 min)</h3>
+    <p><b>Topic:</b> [Grammar topic for this class]<br>
+    Input — teacher-led. Explanation, examples, quick practice.</p>
+  </div>
+
+  <div class="section amber">
+    <div class="sec-hdr">
+      <span class="sec-title">Grammar Topic</span>
+      <span class="sec-time">0–10 min</span>
+    </div>
+    <div class="sec-body">
+      <div class="q-item"><div class="q-num">1</div><div class="q-text"><b>[Grammar point 1]</b> — explanation and example sentence</div></div>
+      <div class="q-item"><div class="q-num">2</div><div class="q-text"><b>[Grammar point 2]</b> — explanation and example sentence</div></div>
+      <div class="q-item"><div class="q-num">3</div><div class="q-text"><b>[Grammar point 3]</b> — explanation and example sentence</div></div>
+      <div class="q-item"><div class="q-num">4</div><div class="q-text"><b>[Quick practice]</b> — students make their own sentence using the grammar</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PART 2 -->
+<div class="panel" id="tab-part2">
+  <div class="hero">
+    <h3>Part 2 — Book Discussion (60 min)</h3>
+    <p><b>Book:</b> [Book title] · <b>Chapter:</b> [Chapter number]<br>
+    <b>Warm-up 5 min</b> — <b>Main 50 min</b> (10 students × 5 min) — <b>Reflection 5 min</b></p>
+  </div>
+
+  <div class="how-box">
+    <div class="hlbl">How Students Should Answer</div>
+    <div class="how-row"><div class="how-n">1</div><div class="how-t">Say their opinion clearly in the first sentence</div></div>
+    <div class="how-row"><div class="how-n">2</div><div class="how-t">Give 2 reasons to support their opinion</div></div>
+    <div class="how-row"><div class="how-n">3</div><div class="how-t">Use the book idea listed under "Use from the chapter"</div></div>
+    <div class="how-row"><div class="how-n">4</div><div class="how-t">Give one example from life, school, or work</div></div>
+    <div class="how-row"><div class="how-n">5</div><div class="how-t">Speak for about 1–2 minutes per turn</div></div>
+  </div>
+
+  <div class="warmup-box">
+    <div class="wlbl">Warm-Up — 5 min · Whole Class</div>
+    <div class="wq">"[Warm-up question for this chapter]"</div>
+    <div class="wnote">Take 2–3 quick answers. No pressure — just activate thinking before the main discussion.</div>
+  </div>
+
+  <!-- STUDENT 1 -->
+  <div class="s-card">
+    <div class="s-hdr" onclick="tog('s1')">
+      <div class="s-num">1</div>
+      <div class="s-info"><div class="s-label">Student 1 · [Topic label]</div><div class="s-topic">[Student 1 thesis question — short version]</div></div>
+      <div class="s-arrow" id="s1-arr">▼</div>
+    </div>
+    <div class="s-body" id="s1">
+      <div class="sb-section">
+        <div class="sb-hdr amber">Thesis Question</div>
+        <div class="thesis-box">[Full thesis question for Student 1]</div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-hdr green">💡 Use from the Chapter</div>
+        <div class="from-box">[Key quote or idea from the chapter relevant to this question. <i>(Chapter X, p. XX)</i>]</div>
+      </div>
+      <div class="sb-section">
+        <div class="lang-box">
+          <div class="lang-box-hdr">Useful Language &amp; Speaking Structure</div>
+          <div class="lang-box-body">
+            <div class="frame-row"><span class="frame-num">1</span><span class="frame-phrase">I think that...</span><span class="frame-hint">— state your opinion first</span></div>
+            <div class="frame-row"><span class="frame-num">2</span><span class="frame-phrase">The first reason is that...</span><span class="frame-hint">— stronger reason</span></div>
+            <div class="frame-row"><span class="frame-num">3</span><span class="frame-phrase">The second reason is that...</span><span class="frame-hint">— second point</span></div>
+            <div class="frame-row"><span class="frame-num">4</span><span class="frame-phrase">In the chapter, Collins says that...</span><span class="frame-hint">— reference the book</span></div>
+            <div class="frame-row"><span class="frame-num">5</span><span class="frame-phrase">For example...</span><span class="frame-hint">— real life / Mongolia</span></div>
+            <div class="frame-row"><span class="frame-num">6</span><span class="frame-phrase">However, some people may say that...</span><span class="frame-hint">— show the other side</span></div>
+            <div class="frame-row"><span class="frame-num">7</span><span class="frame-phrase">So, in my opinion...</span><span class="frame-hint">— confident close</span></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="opt-label">Useful phrases:</div>
+          <div class="opt-grid" style="margin-top:6px;">
+            <div class="opt-box">[Useful phrase 1 for this question...]</div>
+            <div class="opt-box">[Useful phrase 2 for this question...]</div>
+            <div class="opt-box">[Useful phrase 3 for this question...]</div>
+            <div class="opt-box">[Useful phrase 4 for this question...]</div>
+          </div>
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-hdr" style="color:#6020a0;">Linking Words</div>
+        <div class="link-box">
+          <div class="link-box-body">
+            <div class="link-row"><span class="link-word">However,</span><span class="link-use">to show contrast — "However, some people disagree."</span></div>
+            <div class="link-row"><span class="link-word">Furthermore,</span><span class="link-use">to add a point — "Furthermore, Collins shows that..."</span></div>
+            <div class="link-row"><span class="link-word">Although</span><span class="link-use">to show contrast in one sentence — "Although this is true..."</span></div>
+            <div class="link-row"><span class="link-word">In addition,</span><span class="link-use">to add more — "In addition, the research shows..."</span></div>
+            <div class="link-row"><span class="link-word">On the other hand,</span><span class="link-use">to show the opposite view</span></div>
+            <div class="link-row"><span class="link-word">As a result,</span><span class="link-use">to show consequence — "As a result, the company grew."</span></div>
+            <div class="link-row"><span class="link-word">For instance,</span><span class="link-use">to give an example — "For instance, in Mongolia..."</span></div>
+            <div class="link-row"><span class="link-word">Therefore,</span><span class="link-use">to show conclusion — "Therefore, I believe..."</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Duplicate Student 1 card above for Students 2–12, updating: s-label, s-topic, s-num, s-body id, s-arrow id, thesis-box, from-box, opt-box phrases -->
+
+  <div class="warmup-box" style="margin-top:18px;">
+    <div class="wlbl">Final Reflection — 5 min · Whole Class</div>
+    <div class="wq">"Which idea from this chapter is the most useful for life, study, or work? Why?"</div>
+    <div class="wnote">Go around the room. One sentence each. No repeating what someone else said.</div>
+  </div>
+</div>
+<!-- SPEAKING FRAME -->
+<div class="panel" id="tab-frame">
+  <div class="hero">
+    <h3>Speaking Frame — All Students</h3>
+    <p>Write this on the board. Every student uses this structure for every answer.</p>
+  </div>
+  <div class="section amber">
+    <div class="sec-hdr"><span class="sec-title">Universal Speaking Structure</span></div>
+    <div class="sec-body">
+      <div class="frame-step"><div class="frame-num-big">1</div><div><div class="frame-phrase-big">I think that...</div><div class="frame-hint-big">State your opinion clearly in the first sentence. Do not wait.</div></div></div>
+      <div class="frame-step"><div class="frame-num-big">2</div><div><div class="frame-phrase-big">The first reason is that...</div><div class="frame-hint-big">Give your stronger reason first. Be specific.</div></div></div>
+      <div class="frame-step"><div class="frame-num-big">3</div><div><div class="frame-phrase-big">The second reason is that...</div><div class="frame-hint-big">Support with a second point. Do not repeat the first.</div></div></div>
+      <div class="frame-step"><div class="frame-num-big">4</div><div><div class="frame-phrase-big">In the chapter, Collins says that...</div><div class="frame-hint-big">Quote or reference the book directly.</div></div></div>
+      <div class="frame-step"><div class="frame-num-big">5</div><div><div class="frame-phrase-big">For example...</div><div class="frame-hint-big">Use a real example from life, school, work, or Mongolia.</div></div></div>
+      <div class="frame-step"><div class="frame-num-big">6</div><div><div class="frame-phrase-big">However, some people may say that...</div><div class="frame-hint-big">Show you can see the other side. This is what C1 sounds like.</div></div></div>
+      <div class="frame-step"><div class="frame-num-big">7</div><div><div class="frame-phrase-big">So, in my opinion...</div><div class="frame-hint-big">Close with your final position. Clear and confident.</div></div></div>
+    </div>
+  </div>
+
+  <div class="section blue">
+    <div class="sec-hdr"><span class="sec-title">Linking Words — Use these to connect your ideas</span></div>
+    <div class="sec-body" style="padding:0;">
+      <table style="width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif;font-size:.88rem;">
+        <tr style="background:#eaf1ff;border-bottom:2px solid #90b8f0;">
+          <th style="padding:10px 16px;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:#103080;width:35%;">Purpose</th>
+          <th style="padding:10px 16px;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:#103080;width:25%;">Linking Word</th>
+          <th style="padding:10px 16px;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:#103080;">Example</th>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To show contrast</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">However,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"However, some people disagree."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;background:#f7f9ff;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To show contrast</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">Although</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"Although this is true, I think..."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To show contrast</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">On the other hand,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"On the other hand, Collins argues..."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;background:#f7f9ff;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To add a point</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">Furthermore,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"Furthermore, Collins shows that..."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To add a point</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">In addition,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"In addition, the research shows..."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;background:#f7f9ff;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To add a point</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">Moreover,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"Moreover, this idea applies to..."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To give an example</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">For instance,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"For instance, in Mongolia..."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;background:#f7f9ff;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To give an example</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">For example,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"For example, a company like..."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To show consequence</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">As a result,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"As a result, the company grew."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;background:#f7f9ff;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To show consequence</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">Therefore,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"Therefore, I believe that..."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To show consequence</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">Consequently,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"Consequently, great companies..."</td>
+        </tr>
+        <tr style="border-bottom:1px solid #dde4ef;background:#f7f9ff;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To conclude</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">In conclusion,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"In conclusion, I think Collins is..."</td>
+        </tr>
+        <tr style="background:#f7f9ff;">
+          <td style="padding:10px 16px;color:#6a7f96;font-weight:600;">To conclude</td>
+          <td style="padding:10px 16px;font-weight:800;color:#1a3a8a;">Overall,</td>
+          <td style="padding:10px 16px;color:#445;font-style:italic;">"Overall, this idea is important because..."</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CLOSE -->
+<div class="panel" id="tab-close">
+  <div class="hero">
+    <h3>Closing — 5 min</h3>
+    <p>Fast and energetic. Do not let it drag.</p>
+  </div>
+  <div class="section green">
+    <div class="sec-hdr"><span class="sec-title">Exit Round</span></div>
+    <div class="sec-body">
+      <div class="q-item grn"><div class="q-num">1</div><div class="q-text">Each student: one sentence — <i>"Today I learned that..."</i></div></div>
+      <div class="q-item grn"><div class="q-num">2</div><div class="q-text">"Did anyone use the speaking frame? Did it help?"</div></div>
+      <div class="q-item grn"><div class="q-num">3</div><div class="q-text">"Which student had the most interesting answer today? Why?"</div></div>
+    </div>
+  </div>
+  <div class="section amber">
+    <div class="sec-hdr"><span class="sec-title">Homework</span></div>
+    <div class="sec-body">
+      <div class="q-item"><div class="q-num">1</div><div class="q-text"><b>Memorize flashcards</b> — 22 words a day. Every day. No skipping.</div></div>
+      <div class="q-item"><div class="q-num">2</div><div class="q-text"><b>Answer the survey</b> — <a href="https://forms.gle/NDVGW6K4dx7NrhHd6" target="_blank" style="color:var(--amber);font-weight:700;">Click here to open survey</a></div></div>
+      <div class="q-item"><div class="q-num">3</div><div class="q-text"><b>OctoLearn classes</b> at <a href="https://octolearn.mn" target="_blank" style="color:var(--amber);font-weight:700;">octolearn.mn</a> — complete your assigned sessions online.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOS -->
+<div class="panel" id="tab-sos">
+  <div class="hero">
+    <h3>SOS — If Class Gets Stuck</h3>
+    <p>Quick fixes for common classroom problems.</p>
+  </div>
+  <div class="sos-grid">
+    <div class="sos-item"><h4>Student goes silent</h4><p>Ask: <i>"What do you think Collins would say about this?"</i> — redirects pressure away from personal opinion.</p></div>
+    <div class="sos-item pur"><h4>Answer is too short</h4><p>Use: <i>"Can you give an example?"</i> or <i>"Why do you think that?"</i> — never accept one sentence at C1.</p></div>
+    <div class="sos-item"><h4>Running out of time</h4><p>Skip S11 and S12. Move directly to Final Reflection — still gets closure.</p></div>
+    <div class="sos-item pur"><h4>Great discussion, want more</h4><p>Ask: <i>"Does anyone disagree with what [student] just said?"</i> — instant debate.</p></div>
+    <div class="sos-item"><h4>Student did not read</h4><p>Give them S3 or S10 — very clear book quotes they can build on without full reading.</p></div>
+    <div class="sos-item pur"><h4>Discussion dries up</h4><p>Pair talk 2 min: <i>"Tell your partner — is Collins right?"</i> Then bring back to group.</p></div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+// TABS
+function showTab(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+// ACCORDION
+function tog(id){
+  const b=document.getElementById(id);
+  const a=document.getElementById(id+'-arr');
+  const open=b.classList.toggle('open');
+  a.classList.toggle('open',open);
+}
+
+// SINGLE 5-MIN TIMER WITH SOUND
+const TOTAL=300;
+let secs=TOTAL, running=false, iv=null;
+const ctx = new (window.AudioContext||window.webkitAudioContext)();
+
+function beep(freq,dur,vol){
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.frequency.value=freq;
+  gain.gain.setValueAtTime(vol,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime+dur);
+}
+
+function alertSound(){
+  // Three clear beeps
+  beep(880,0.3,0.6);
+  setTimeout(()=>beep(880,0.3,0.6),400);
+  setTimeout(()=>beep(1100,0.6,0.8),800);
+}
+
+function fmt(s){
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+function colorT(){
+  const el=document.getElementById('tnum');
+  el.className='tnum';
+  if(!running) return;
+  const pct=secs/TOTAL;
+  if(secs===0) el.classList.add('done');
+  else if(pct<=0.1) el.classList.add('warn');
+  else el.classList.add('go');
+}
+
+function tick(){
+  if(secs<=0){
+    clearInterval(iv); running=false;
+    document.getElementById('btnGo').textContent='Start';
+    document.getElementById('tnum').className='tnum done';
+    alertSound();
+    return;
+  }
+  secs--;
+  document.getElementById('tnum').textContent=fmt(secs);
+  colorT();
+}
+
+function timerToggle(){
+  if(ctx.state==='suspended') ctx.resume();
+  if(running){
+    clearInterval(iv); running=false;
+    document.getElementById('btnGo').textContent='Resume';
+    document.getElementById('tnum').className='tnum';
+  } else {
+    if(secs<=0) return;
+    running=true; iv=setInterval(tick,1000);
+    document.getElementById('btnGo').textContent='Pause';
+    colorT();
+  }
+}
+
+function timerReset(){
+  clearInterval(iv); running=false; secs=TOTAL;
+  document.getElementById('tnum').textContent=fmt(secs);
+  document.getElementById('tnum').className='tnum';
+  document.getElementById('btnGo').textContent='Start';
+}
+</script>
+</body>
+</html>
