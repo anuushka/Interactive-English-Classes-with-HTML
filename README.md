@@ -1,16 +1,16 @@
-# 🌟 Interactive HTML Classes
+#  Interactive HTML Classes
 
 > **HTML templates for English morning/evening classes and flashcards.**
 > *Designed to streamline your workflow and save prep time once your lessons are set up.*
 
 ---
 
-## 🗣️ Template 1: Class Debate
+##  Template 1: Class Debate
 **Best for:** Leading class debates based on a specific book thesis.
 
 🔗 **[View Template 1 Source Code](https://github.com/anuushka/interactive-HTML-classes/blob/main/octolearn-template.html)**
 
-### 📝 Update Guide
+###  Update Guide
 Use the table below to quickly identify which placeholders in the HTML need to be swapped out for your daily lesson content:
 
 | Placeholder | What to Replace With |
@@ -29,12 +29,12 @@ Use the table below to quickly identify which placeholders in the HTML need to b
 
 ---
 
-## 📚 Template 2: Full Chapter Discussion
+##  Template 2: Full Chapter Discussion
 **Best for:** Comprehensive discussions after finishing a full book chapter.
 
 🔗 **[View Template 2 Source Code](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/Template-G2G-Chapter-Discussion.html)**
 
-### 📌 Fixed Elements
+###  Fixed Elements
 *These features are built-in and stay the same for every class—no editing required!*
 * **Speaking Structure:** Steps 1–7
 * **Linking Words:** Quick-reference table for students
@@ -42,10 +42,10 @@ Use the table below to quickly identify which placeholders in the HTML need to b
 * **Timer:** Built-in 5-minute timer with audio alerts
 * **Static Tabs:** Homework section, SOS tab, and Speaking Frame tab
 
-### 🔄 Dynamic Elements (Placeholders)
+###  Dynamic Elements (Placeholders)
 *Fill these in before each specific class:*
 * **Header:** `[Class #]` · `[Date]`
 * **Part 1:** Grammar topic focus for the lesson
-* **Part 2:** Chapter number + Link to the Discussion PDF
+* **Part 2:** Chapter number + Link to the **Discussion PDF**
 
-> **📄 Resource Example:** > Want to see how the discussion materials should look? Check out the **[Good To Great - Chapter 1 Discussion PDF](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/Good%20To%20Great%20-%20Chapter%201%20-%20Discussion%20%26%20Questions.pdf)** to see an example of thesis questions, quotes, and useful phrases.
+> ** Resource Example:** > Want to see how the discussion materials should look? Check out the **[Good To Great - Chapter 1 Discussion PDF](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/Good%20To%20Great%20-%20Chapter%201%20-%20Discussion%20%26%20Questions.pdf)** to see an example of thesis questions, quotes, and useful phrases.
