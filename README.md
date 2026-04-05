@@ -1,7 +1,7 @@
 #  Interactive HTML Classes
 
 > **HTML templates for English morning/evening classes and flashcards.**
-> *Designed to streamline your workflow and save prep time once your lessons are set up.*
+> *Save prep time once lessons are set up.*
 
 ---
 
