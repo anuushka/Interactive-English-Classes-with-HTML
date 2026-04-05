@@ -47,6 +47,6 @@ Use the table below to quickly identify which placeholders in the HTML need to b
 *Fill these in before each specific class:*
 * **Header:** `[Class #]` · `[Date]`
 * **Part 1:** Grammar topic focus for the lesson
-* **Part 2:** Chapter number + Link to the **Discussion PDF**
+* **Part 2:** Chapter [number] + **Discussion PDF**
 
 > ** Resource Example:** > Want to see how the discussion materials should look? Check out the **[Good To Great - Chapter 1 Discussion PDF](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/Good%20To%20Great%20-%20Chapter%201%20-%20Discussion%20%26%20Questions.pdf)** to see an example of thesis questions, quotes, and useful phrases.
