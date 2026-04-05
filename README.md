@@ -49,4 +49,4 @@ Use the table below to quickly identify which placeholders in the HTML need to b
 * **Part 1:** Grammar topic focus for the lesson
 * **Part 2:** Chapter [number] + **Discussion PDF**
 
-> _**Discussion PDF Example**:_ to see an example of thesis questions, quotes, and useful phrases._ > **[Good To Great - Chapter 1 Discussion PDF](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/Good%20To%20Great%20-%20Chapter%201%20-%20Discussion%20%26%20Questions.pdf)** 
+> _**Discussion PDF Example**: to see an example of thesis questions, quotes, and useful phrases._ > **[Good To Great - Chapter 1 Discussion PDF](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/Good%20To%20Great%20-%20Chapter%201%20-%20Discussion%20%26%20Questions.pdf)** 
