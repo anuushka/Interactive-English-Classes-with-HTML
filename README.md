@@ -4,8 +4,7 @@
 
 <i>To save time once the template options are ready</i>
 
-
-<h2><a href="https://github.com/anuushka/interactive-HTML-classes/blob/main/octolearn-template.html">Template 1</a></h2>
+<h1><a href="https://github.com/anuushka/interactive-HTML-classes/blob/main/octolearn-template.html">Template 1 for class debate based on a book thesis</a></h1>
 
 | **Placeholder**              | **What to replace**                              |
 |----------------------------|--------------------------------------------------|
@@ -20,3 +19,8 @@
 | `[SIDE A] / [SIDE B]`      | Debate positions                               |
 | `[CLOSING SENTENCE]`       | The stem for the closing round                  |
 | `[SOS PROMPTS]`            | 3–4 content-specific emergency questions        |
+
+
+
+<h2><a href="https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/Template-G2G-Chapter-Discussion.html">Template 2 for a full discussion after finishing a Book chapter</a></h2>
+
