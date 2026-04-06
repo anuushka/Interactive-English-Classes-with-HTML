@@ -50,4 +50,10 @@ Use the table below to quickly identify which placeholders in the HTML need to b
 * **Part 2:** Chapter [number] + **Discussion PDF**
 
 > _**Discussion PDF Example**: to see an example of thesis questions, quotes, and useful phrases._ 
-**[Good To Great - Chapter 1 Discussion PDF](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/Good%20To%20Great%20-%20Chapter%201%20-%20Discussion%20%26%20Questions.pdf)** 
+**[Good To Great - Chapter 1 Discussion PDF](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/Good%20To%20Great%20-%20Chapter%201%20-%20Discussion%20%26%20Questions.pdf)**
+
+## Exam Template (1st week)
+Grammar — ямар topic? (өөр modal, phrasal verbs, гэх мэт)
+Vocabulary — ямар үгс? (flashcard-аас авах уу?)
+Reading — Crazy Paella Chapter 2 үү, өөр text үү?
+Writing — Good to Great Chapter 2 thesis уу?
