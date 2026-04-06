@@ -54,6 +54,9 @@ Use the table below to quickly identify which placeholders in the HTML need to b
 
 ## Exam Template (1st week)
 Grammar — ямар topic? (өөр modal, phrasal verbs, гэх мэт)
+
 Vocabulary — ямар үгс? (flashcard-аас авах уу?)
+
 Reading — Crazy Paella Chapter 2 үү, өөр text үү?
+
 Writing — Good to Great Chapter 2 thesis уу?
