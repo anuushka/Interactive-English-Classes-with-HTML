@@ -63,3 +63,11 @@ Writing — Good to Great Chapter 2 thesis уу?
 
 **[1st week review for exam](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/OctoLearn_B1_Week1_Exam.docx)**
 
+**[Apps Script, Google Workspace for Google Forms, 1st week exam Option 1](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/1stexam.gs)**
+
+**[Apps Script, Google Workspace for Google Forms, 1st week exam Option 2](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/1stweek-Octo.gs)**
+
+
+
+
+
