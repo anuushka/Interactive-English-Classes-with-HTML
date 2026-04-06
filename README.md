@@ -60,3 +60,6 @@ Vocabulary — ямар үгс? (flashcard-аас авах уу?)
 Reading — Crazy Paella Chapter 2 үү, өөр text үү?
 
 Writing — Good to Great Chapter 2 thesis уу?
+
+**[1st week review for exam](https://github.com/anuushka/Interactive-English-Classes-with-HTML/blob/main/OctoLearn_B1_Week1_Exam.docx)**
+
